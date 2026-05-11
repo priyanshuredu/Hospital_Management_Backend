@@ -60,7 +60,8 @@ const createAdmin = async (req,res) => {
 
 const updateAdminInfo = async (req,res) => {
     const {username ,email ,phoneNumber ,age ,bg_description ,gender } = req.body;
-    // const id = req.user._id
+    const id = req.user._id
+    console.log("Id :",id);
     if(!username || !email || !phoneNumber || !age || !bg_description || !gender) return res.status(400).json({
         message:"Req body not found."
     })
@@ -68,6 +69,7 @@ const updateAdminInfo = async (req,res) => {
     try{
         const updatedData = {username ,email ,phoneNumber ,age ,bg_description ,gender};
         const adminUpdatedInfo = await userModel.findByIdAndUpdate(id, updatedData,{new: true})
+        console.log("Updated data :",adminUpdatedInfo);
 
         return res.status(200).json({
             message:`${username} info updated.`,
@@ -75,7 +77,7 @@ const updateAdminInfo = async (req,res) => {
         });
     } catch(error){
         return res.status(400).json({
-            message:error
+            message:error.message
         });
     }
 }

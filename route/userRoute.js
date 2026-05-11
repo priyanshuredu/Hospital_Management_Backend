@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const auth = require('../middleware/auth')
 const {login, verifyEmail, forgotPassword, resetPassword, getAllUsers, updateUserInfo, updateAccountStatus ,getAllUserData ,updateProfile ,getUser} = require('../controller/userController');
 
 router.post('/login' ,login);

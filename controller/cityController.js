@@ -1,13 +1,14 @@
 const cityLocationModel = require('../model/cityLocationModel');
 
 const createCity = async (req,res) => {
-    const {cityName } = req.body;
+    const {districtId ,cityName } = req.body;
     if(!cityName) return res.status(400).json({
         message:"Req body not found."
     })
 
     try{
-        const result = await cityLocationModel.create(cityName);
+        const cityData = {cityName ,district: districtId}
+        const result = await cityLocationModel.create(cityData);
 
         if(result) return res.status(200).json({
             message:"New city added successfully.",

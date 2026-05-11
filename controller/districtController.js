@@ -3,13 +3,14 @@ const cityLocationModel = require('../model/cityLocationModel');
 const mongoose = require('mongoose')
 
 const createDistrict = async (req,res) => {
-    const {districtName } = req.body;
+    const {stateId,districtName } = req.body;
     if(!districtName) return res.status(400).json({
         message:"Req body not found."
     })
 
     try{
-        const result = await districtLocationModel.create(districtName);
+        const districtData = {districtName ,state: stateId}
+        const result = await districtLocationModel.create(districtData);
 
         if(result) return res.status(200).json({
             message:"New district added successfully.",
