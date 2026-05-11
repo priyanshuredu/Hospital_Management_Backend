@@ -6,6 +6,12 @@ const cityLocationSchema = new mongoose.Schema({
         type:String,
         required: true,
     },
+    status:{
+        type: String,
+        enum: ['active','inactive'],
+        default: "active",
+        required: true
+    },
     district:{
         type: mongoose.Types.ObjectId,
         ref :'districtLocation',
@@ -14,3 +20,5 @@ const cityLocationSchema = new mongoose.Schema({
 })
 
 const cityLocationModel = mongoose.model('cityLocation', cityLocationSchema);
+
+module.exports = cityLocationModel;

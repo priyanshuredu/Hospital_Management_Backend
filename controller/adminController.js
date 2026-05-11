@@ -2,6 +2,7 @@ const adminModel = require('../model/adminModel');
 const bcrypt = require('bcrypt');
 const userModel = require('../model/userModel')
 const mongoose = require('mongoose');
+const {sendWelcomeEmail} = require('../utility/mailServices')
 
 const createAdmin = async (req,res) => {
     const {username ,email ,phoneNumber ,age ,bg_description ,gender ,password} = req.body;
@@ -37,11 +38,16 @@ const createAdmin = async (req,res) => {
         userResult.save({session});
 
         await session.commitTransaction();
-        if(adminResult && userResult) return res.status(200).json({
+        if(adminResult && userResult) {
+            const userRole = userResult.role;
+            sendWelcomeEmail(email ,username ,password , userRole);
+
+            return res.status(200).json({
             message:"Admin created successfully in both tables",
             adminResult,
             userResult
         })
+    }
     } catch(error) {
         await session.abortTransaction();
         return res.status(500).json({
@@ -52,4 +58,26 @@ const createAdmin = async (req,res) => {
     }
 }
 
-module.exports = { createAdmin}
+const updateAdminInfo = async (req,res) => {
+    const {username ,email ,phoneNumber ,age ,bg_description ,gender } = req.body;
+    // const id = req.user._id
+    if(!username || !email || !phoneNumber || !age || !bg_description || !gender) return res.status(400).json({
+        message:"Req body not found."
+    })
+
+    try{
+        const updatedData = {username ,email ,phoneNumber ,age ,bg_description ,gender};
+        const adminUpdatedInfo = await userModel.findByIdAndUpdate(id, updatedData,{new: true})
+
+        return res.status(200).json({
+            message:`${username} info updated.`,
+            adminUpdatedInfo
+        });
+    } catch(error){
+        return res.status(400).json({
+            message:error
+        });
+    }
+}
+
+module.exports = { createAdmin ,updateAdminInfo }

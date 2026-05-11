@@ -12,3 +12,182 @@ const transporter = nodemailer.createTransport({
     tls:{rejectUnauthorized: false}
 })
 
+const sendWelcomeEmail = async (email, username, password, userRole) => {
+  // Role-based styling and messages
+  const roleConfig = {
+    admin: {
+      icon: '👨‍⚕️',
+      title: 'Administrator',
+      greeting: 'Welcome to the Admin Dashboard!',
+      color: '#1e3c72',
+      secondaryColor: '#2a5298'
+    },
+    doctor: {
+      icon: '👨‍⚕️',
+      title: 'Medical Professional',
+      greeting: 'Welcome to your Medical Dashboard!',
+      color: '#0f2027',
+      secondaryColor: '#203a43'
+    },
+    nurse: {
+      icon: '👩‍⚕️',
+      title: 'Nursing Staff',
+      greeting: 'Welcome to the Nursing Portal!',
+      color: '#2c3e50',
+      secondaryColor: '#3498db'
+    },
+    staff: {
+      icon: '🏥',
+      title: 'Hospital Staff',
+      greeting: 'Welcome to the Hospital Management System!',
+      color: '#2193b0',
+      secondaryColor: '#6dd5ed'
+    },
+    patient: {
+      icon: '🤝',
+      title: 'Patient Portal',
+      greeting: 'Welcome to Patient Portal!',
+      color: '#11998e',
+      secondaryColor: '#38ef7d'
+    }
+  };
+
+  const config = roleConfig[userRole] || roleConfig.staff;
+
+  const mail = {
+    from: '"Hospital Management System" <priyanshuredu12@gmail.com>',
+    to: email,
+    subject: `🏥 Welcome to Hospital Management System, ${username}!`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Welcome to HMS</title>
+      </head>
+      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px;">
+          <tr>
+            <td align="center">
+              <table width="100%" max-width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1);">
+                
+                <!-- Header Section with Gradient -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, ${config.color} 0%, ${config.secondaryColor} 100%); padding: 40px 30px; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 10px;">${config.icon} 🏥</div>
+                    <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">Hospital Management System</h1>
+                    <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0; font-size: 16px;">${config.title} Portal</p>
+                  </td>
+                </tr>
+
+                <!-- Welcome Message -->
+                <tr>
+                  <td style="padding: 40px 30px 20px;">
+                    <h2 style="color: #2c3e50; margin: 0 0 10px; font-size: 24px;">Hello ${username}! 👋</h2>
+                    <p style="color: #555; line-height: 1.6; margin: 0 0 10px; font-size: 16px;">${config.greeting}</p>
+                    <p style="color: #555; line-height: 1.6; margin: 0;">Your account has been successfully created in our Hospital Management System.</p>
+                  </td>
+                </tr>
+
+                <!-- Login Credentials Card -->
+                <tr>
+                  <td style="padding: 0 30px;">
+                    <div style="background: #f8f9fa; border-radius: 12px; padding: 25px; border-left: 4px solid ${config.secondaryColor}; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                      <h3 style="margin: 0 0 15px; color: #2c3e50; font-size: 18px;">📋 Your Login Credentials</h3>
+                      <div style="margin-bottom: 12px;">
+                        <div style="display: inline-block; width: 80px; color: #666; font-weight: 600;">📧 Email:</div>
+                        <div style="display: inline-block; color: #333; font-family: monospace;">${email}</div>
+                      </div>
+                      <div style="margin-bottom: 5px;">
+                        <div style="display: inline-block; width: 80px; color: #666; font-weight: 600;">🔑 Password:</div>
+                        <div style="display: inline-block; color: #e74c3c; font-family: monospace; font-weight: 600;">${password}</div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Security Notice -->
+                <tr>
+                  <td style="padding: 20px 30px;">
+                    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 8px;">
+                      <div style="color: #856404; font-size: 14px; display: flex; align-items: center;">
+                        <span style="font-size: 20px; margin-right: 10px;">⚠️</span>
+                        <span><strong>Security Notice:</strong> Please change your password immediately after your first login for security purposes.</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Quick Tips Section -->
+                <tr>
+                  <td style="padding: 0 30px;">
+                    <div style="background: #e8f4f8; border-radius: 12px; padding: 20px;">
+                      <h3 style="margin: 0 0 15px; color: #1e3c72; font-size: 16px;">💡 Quick Tips</h3>
+                      <div style="margin-bottom: 10px; display: flex; align-items: center;">
+                        <span style="font-size: 18px; margin-right: 10px;">📱</span>
+                        <span style="color: #555;">Access the system from any device with internet connection</span>
+                      </div>
+                      <div style="margin-bottom: 10px; display: flex; align-items: center;">
+                        <span style="font-size: 18px; margin-right: 10px;">🔒</span>
+                        <span style="color: #555;">Never share your password with anyone</span>
+                      </div>
+                      <div style="display: flex; align-items: center;">
+                        <span style="font-size: 18px; margin-right: 10px;">🆘</span>
+                        <span style="color: #555;">Contact IT support for technical assistance</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Action Buttons -->
+                <tr>
+                  <td style="padding: 30px; text-align: center;">
+                    <a href="http://localhost:3000/login" style="display: inline-block; background: linear-gradient(135deg, ${config.color} 0%, ${config.secondaryColor} 100%); color: white; padding: 14px 35px; border-radius: 50px; text-decoration: none; font-weight: 600; margin: 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                      🚀 Login to Dashboard
+                    </a>
+                    <a href="http://localhost:3000/reset-password" style="display: inline-block; background: #6c757d; color: white; padding: 14px 35px; border-radius: 50px; text-decoration: none; font-weight: 600; margin: 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                      🔑 Reset Password
+                    </a>
+                  </td>
+                </tr>
+
+                <!-- Help & Support -->
+                <tr>
+                  <td style="padding: 20px 30px; background: #f8f9fa;">
+                    <div style="text-align: center;">
+                      <p style="margin: 0 0 10px; color: #666; font-size: 14px;">
+                        📞 <strong>Need Help?</strong> Contact our support team
+                      </p>
+                      <p style="margin: 0; color: #999; font-size: 12px;">
+                        📧 support@hospitalmanagement.com | 📞 +91 12345 67890 | 🕐 24/7 Available
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background: #2c3e50; padding: 20px; text-align: center;">
+                    <div style="color: #95a5a6; font-size: 12px; line-height: 1.6;">
+                      <p style="margin: 0 0 5px;">© 2024 Hospital Management System. All rights reserved.</p>
+                      <p style="margin: 0;">
+                        <a href="#" style="color: #95a5a6; text-decoration: none;">Privacy Policy</a> | 
+                        <a href="#" style="color: #95a5a6; text-decoration: none;">Terms of Service</a>
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `
+  };
+  
+  return await transporter.sendMail(mail);
+};
+
+module.exports = {sendWelcomeEmail}

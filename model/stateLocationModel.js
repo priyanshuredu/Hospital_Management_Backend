@@ -5,6 +5,12 @@ const stateLocationSchema = new mongoose.Schema({
         type:String,
         required: true,
     },
+    status:{
+        type: String,
+        enum: ['active','inactive'],
+        default: "active",
+        required: true
+    },
     country :{
         type: String,
         default: "India"
@@ -12,3 +18,5 @@ const stateLocationSchema = new mongoose.Schema({
 })
 
 const stateLocationModel = mongoose.model('stateLocation',stateLocationSchema);
+
+module.exports = stateLocationModel;
