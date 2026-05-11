@@ -3,6 +3,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const app = express();
 require('dotenv').config();
+const adminRoute = require('./route/adminRoute')
 
 const DB_URL = process.env.DB_URL;
 const PORT = process.env.PORT;
@@ -15,6 +16,7 @@ app.use(cors({
     origin:"*"
 }))
 app.use(express.json());
+app.use('/admin', adminRoute);
 
 app.listen(process.env.PORT ,() => {
     console.log(`Server is running on ${process.env.PORT}.`)
