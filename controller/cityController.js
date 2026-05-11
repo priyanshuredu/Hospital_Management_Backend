@@ -20,7 +20,7 @@ const createCity = async (req,res) => {
     }
 }
 
-const updateStatus = async (req,res) => {
+const updateCityStatus = async (req,res) => {
     const {id ,status} = req.body;
     if(!status) return res.status(400).json({
         message:"Req body not found."
@@ -74,3 +74,5 @@ const deleteCity = async (req,res) => {
         })
     }
 }
+
+module.exports = {createCity ,updateCityStatus ,getAllCities ,deleteCity}

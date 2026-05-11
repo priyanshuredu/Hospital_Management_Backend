@@ -331,7 +331,7 @@ const getUser = async (req,res) =>{
 }
 
 const updateProfile = async (req,res) => {
-    console.log("image:",req.files.image)
+    // console.log("image:",req.files.image)
     const id = req.user._id
     const image =req.files.image
 
@@ -364,41 +364,4 @@ const updateProfile = async (req,res) => {
     }
 }
 
-const updateBackgroundImg = async (req,res) => {
-    const id = req.user._id
-    const image =req.files
-
-    // console.log("image:",image)
-
-    if(!id || !image) return res.status(404).json({
-        message:"Request body not found."
-    })
-
-    try{
-        const uploadedImage = await upload.uploadImage(image);
-
-        if(!uploadedImage) return res.status(404).json({
-            message:"Failed to make image url."
-        })
-        const imgUrl = uploadedImage[0].url;
-
-        // console.log("Img url:",imgUrl)
-
-        await userModel.findByIdAndUpdate(id,{
-            backgroundImage: imgUrl
-        },{new :true})
-
-        return res.status(200).json({
-            message:"Background image added successfully."
-        })
-    } catch(error){
-        return res.status(400).json({
-            message: error.message
-        })
-    }
-}
-
-
-
-
-module.exports = {signUp, login, verifyEmail, forgotPassword, resetPassword, getAllUsers, updateUserInfo, updateAccountStatus ,getAllUserData ,updateProfile ,updateBackgroundImg ,getUser}
+module.exports = {login, verifyEmail, forgotPassword, resetPassword, getAllUsers, updateUserInfo, updateAccountStatus ,getAllUserData ,updateProfile ,getUser}

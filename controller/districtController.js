@@ -22,7 +22,7 @@ const createDistrict = async (req,res) => {
     }
 }
 
-const updateStatus = async (req,res) => {
+const updateDistrictStatus = async (req,res) => {
     const {id ,status} = req.body;
     if(!status) return res.status(400).json({
         message:"Req body not found."
@@ -57,7 +57,7 @@ const getAllDistricts = async (req,res) => {
     }
 }
 
-const deleteState = async (req,res) => {
+const deleteDistrict = async (req,res) => {
     const {id} = req.params;
     if(!id) return res.status(400).json({
         message:"Id not found."
@@ -86,3 +86,5 @@ const deleteState = async (req,res) => {
         await session.endSession();
     }
 }
+
+module.exports = {createDistrict ,updateDistrictStatus ,getAllDistricts ,deleteDistrict}

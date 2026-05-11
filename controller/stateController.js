@@ -37,7 +37,7 @@ const getAllStates = async (req,res) => {
     }
 }
 
-const updateStatus = async (req,res) => {
+const updateStateStatus = async (req,res) => {
     const {id ,status} = req.body;
     if(!status) return res.status(400).json({
         message:"Req body not found."
@@ -86,3 +86,5 @@ const deleteState = async (req,res) => {
         await session.endSession();
     }
 }
+
+module.exports = {createState ,getAllStates ,updateStateStatus ,deleteState}
