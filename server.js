@@ -6,6 +6,7 @@ require('dotenv').config();
 const adminRoute = require('./route/adminRoute');
 const userRoute = require('./route/userRoute');
 const locationRoute = require('./route/locationRoute');
+const hospitalRoute = require('./route/hospitalRoute');
 
 const DB_URL = process.env.DB_URL;
 const PORT = process.env.PORT;
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use('/admin', adminRoute);
 app.use('/user', userRoute);
 app.use('/location', locationRoute);
+app.use('/hospital', hospitalRoute);
 
 app.listen(process.env.PORT ,() => {
     console.log(`Server is running on ${process.env.PORT}.`)
