@@ -1,13 +1,13 @@
 const cityLocationModel = require('../model/cityLocationModel');
 
 const createCity = async (req,res) => {
-    const {districtId ,cityName } = req.body;
+    const {districtId ,stateId ,cityName } = req.body;
     if(!cityName) return res.status(400).json({
         message:"Req body not found."
     })
 
     try{
-        const cityData = {cityName ,district: districtId}
+        const cityData = {cityName ,district: districtId , state: stateId}
         const result = await cityLocationModel.create(cityData);
 
         if(result) return res.status(200).json({
@@ -45,6 +45,7 @@ const getAllCities = async (req,res) => {
     try{
         const cities = await cityLocationModel.find();
 
+        console.log(cities)
         return res.status(200).json({
             message: "All  cities.",
             cities
@@ -76,4 +77,22 @@ const deleteCity = async (req,res) => {
     }
 }
 
-module.exports = {createCity ,updateCityStatus ,getAllCities ,deleteCity}
+const getCityById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const city = await cityLocationModel.findById(id).populate('district');
+        if (!city) {
+            return res.status(404).json({ message: "City not found" });
+        }
+        return res.status(200).json({
+            message: "City found",
+            city
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message
+        });
+    }
+}
+
+module.exports = {createCity ,updateCityStatus ,getAllCities ,deleteCity , getCityById}

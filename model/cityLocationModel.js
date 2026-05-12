@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const districtLocation = require('./districtLocationModel')
+const stateLocation = require('./stateLocationModel')
 
 const cityLocationSchema = new mongoose.Schema({
     cityName:{
@@ -11,6 +12,11 @@ const cityLocationSchema = new mongoose.Schema({
         enum: ['active','inactive'],
         default: "active",
         required: true
+    },
+    state:{
+            type: mongoose.Types.ObjectId,
+            ref :'stateLocation',
+            required: true
     },
     district:{
         type: mongoose.Types.ObjectId,

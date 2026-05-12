@@ -42,7 +42,6 @@ const updateStateStatus = async (req,res) => {
     if(!status) return res.status(400).json({
         message:"Req body not found."
     })
-
     try{
         const result = await stateLoactionModel.findByIdAndUpdate(id,{status: status},{new: true});
 
@@ -87,4 +86,23 @@ const deleteState = async (req,res) => {
     }
 }
 
-module.exports = {createState ,getAllStates ,updateStateStatus ,deleteState}
+const getStateById = async (req, res) => {
+    const { id } = req.params;
+    console.log("id :",id)
+    try {
+        const state = await stateLoactionModel.findById(id);
+        if (!state) {
+            return res.status(404).json({ message: "State not found" });
+        }
+        return res.status(200).json({
+            message: "State found",
+            state
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message
+        });
+    }
+}
+
+module.exports = {createState ,getAllStates ,updateStateStatus ,deleteState ,getStateById}

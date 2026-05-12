@@ -68,7 +68,7 @@ const deleteDistrict = async (req,res) => {
     try{
         await session.startTransaction();
 
-        const deletedCities = await cityLocationModel.deleteMany({state: id},{session});
+        const deletedCities = await cityLocationModel.deleteMany({district: id},{session});
 
         const deletedDistrict = await districtLocationModel.findByIdAndDelete(id ,{session});
 
@@ -88,4 +88,42 @@ const deleteDistrict = async (req,res) => {
     }
 }
 
-module.exports = {createDistrict ,updateDistrictStatus ,getAllDistricts ,deleteDistrict}
+const getDistrictById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const district = await districtLocationModel.findById(id).populate('state');
+        console.log(district)
+        if (!district) {
+            return res.status(404).json({ message: "District not found" });
+        }
+        return res.status(200).json({
+            message: "District found",
+            district
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message
+        });
+    }
+}
+
+const getDistrictsByState = async (req, res) => {
+    const { id } = req.params;
+    if(!id) return res.status(400).json({
+        message:"State Id not found."
+    }) 
+    try {
+        const districts = await districtLocationModel.find({ state: id });
+        console.log(districts)
+        return res.status(200).json({
+            message: "Districts found",
+            districts
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message
+        });
+    }
+}
+
+module.exports = {createDistrict ,updateDistrictStatus ,getAllDistricts ,deleteDistrict ,getDistrictsByState ,getDistrictById}
