@@ -3,8 +3,8 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth')
 
-router.get('/:id', getHospitalById);
 router.get('/all', getAllHospitals);
+router.get('/:id', getHospitalById);
 
 router.post('/create', createHospital);
 

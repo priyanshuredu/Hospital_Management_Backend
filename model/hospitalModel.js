@@ -86,11 +86,11 @@ const hospitalSchema = new mongoose.Schema({
     },
     emergency_service:{
         type: Boolean,
-        required: true,
+        required: true
     },
     ambulance_service:{
         type: Boolean,
-        required: true,
+        required: true
     },
     departments:{
         type: Array,
@@ -114,5 +114,5 @@ const hospitalSchema = new mongoose.Schema({
     }
 });
 
-const hospitalModel = mongoose.Model('hospital',hospitalSchema);
+const hospitalModel = mongoose.model('hospital',hospitalSchema);
 module.exports = hospitalModel;

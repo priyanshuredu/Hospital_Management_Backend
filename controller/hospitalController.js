@@ -6,11 +6,30 @@ const {sendWelcomeEmail ,sendHospitalApprovalEmail ,sendHospitalRejectionEmail} 
 const {generatePasswordWithUUID} = require('../utility/uuidGenerator');
 
 const createHospital = async (req,res) => {
-    const {hospital_name, registration_no, hospital_type, ownership, established_year, email, primary_phone, secondary_phone, hospital_address, city, district, state, total_doctors, icu_beds, emergency_service, ambulance_service, departments, hospital_manager, hospital_description} = req.body;
+    const {hospital_name, registration_no, hospital_type, ownership, established_year, email, primary_phone, secondary_phone, hospital_address, city, district, state, total_doctors, total_beds, icu_beds, emergency_service, ambulance_service, departments, hospital_manager, hospital_description} = req.body;
+    console.log("Req body :",req.body)
 
-    if(!hospital_name || !registration_no || !hospital_type || !ownership || !established_year || !email || !primary_phone || !secondary_phone || !hospital_address || !city || !district || !state || !total_doctors || !icu_beds || !emergency_service || !ambulance_service || !departments || !hospital_manager || !hospital_description) return res.status(400).json({
-        message: 'Req body not found.'
+    const requiredFields = [
+    'hospital_name', 'registration_no', 'hospital_type', 'email', 
+    'primary_phone', 'hospital_address', 'city', 'district', 
+    'state', 'total_doctors', 'total_beds', 'icu_beds', 
+    'emergency_service', 'ambulance_service', 'departments', 
+    'hospital_manager', 'hospital_description'
+];
+
+const missingFields = requiredFields.filter(field => !req.body[field]);
+
+if (missingFields.length > 0) {
+    return res.status(400).json({
+        success: false,
+        message: `Missing required fields: ${missingFields.join(', ')}`,
+        missingFields: missingFields
     });
+}
+
+    // if(!hospital_name || !registration_no || !hospital_type || !ownership || !established_year || !email || !primary_phone || !secondary_phone || !hospital_address || !city || !district || !state || !total_doctors || !total_beds || !icu_beds || !emergency_service || !ambulance_service || !departments || !hospital_manager || !hospital_description) return res.status(400).json({
+    // message: 'Req body not found.'
+    // });
 
     if(hospital_name.length < 10 || hospital_name.length > 100) {
         return res.status(400).json({
@@ -174,7 +193,7 @@ const createHospital = async (req,res) => {
     }
 
     try{
-        const hospital_data = {hospital_name, registration_no, hospital_type, ownership, established_year, email, primary_phone, secondary_phone, hospital_address, city, district, state, total_doctors, icu_beds, emergency_service, ambulance_service, departments, hospital_manager, hospital_description};
+        const hospital_data = {hospital_name, registration_no, hospital_type, ownership, established_year, email, primary_phone, secondary_phone, hospital_address, city, district, state, total_doctors, total_beds , icu_beds, emergency_service, ambulance_service, departments, hospital_manager, hospital_description};
         const result = await hospitalModel.create(hospital_data);
 
         return res.status(200).json({
@@ -228,7 +247,7 @@ const updateHospitalStatus = async (req,res) => {
     })
 
     const validHospitalStatus = ['pending','approved','rejected'];
-    if(!validHospitalTypes.includes(status)) {
+    if(!validHospitalStatus.includes(status)) {
         return res.status(400).json({
             success: false,
             message: 'Hospital status must be one of: pending, approved or rejected.'
@@ -240,6 +259,8 @@ const updateHospitalStatus = async (req,res) => {
 
         const hospital = await hospitalModel.findByIdAndUpdate(id ,{status : status},{new :true});
 
+        const hospitalMail = hospital.email;
+        const hospitalName = hospital.hospital_name;
         if(hospital.status === 'pending'){
             return res.status(200).json({
                 success: true,
@@ -247,7 +268,7 @@ const updateHospitalStatus = async (req,res) => {
                 hospital
             })
         } else if(hospital.status === 'rejected') {
-            sendHospitalRejectionEmail(hospital.email ,hospital.hospital_name);
+            sendHospitalRejectionEmail(hospitalMail ,hospitalName);
             return res.status(200).json({
                 success: true,
                 message: "Status updated successfully.",
@@ -255,7 +276,7 @@ const updateHospitalStatus = async (req,res) => {
             })
         } else if(hospital.status === 'approved') {
             const password = generatePasswordWithUUID();
-            sendHospitalApprovalEmail(email ,hospital.hospital_name ,password);
+            sendHospitalApprovalEmail(hospitalMail ,hospitalName ,password);
             const user_data = {username: hospital.hospital_name ,email :hospital.email ,password ,role:"hospital-admin" }
 
             const user = await userModel.create(user_data);

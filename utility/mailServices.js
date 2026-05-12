@@ -370,7 +370,7 @@ const sendHospitalApprovalEmail = async (email, hospital_name, password) => {
   return await transporter.sendMail(mail);
 };
 
-const sendHospitalRejectionEmail = async (email, hospital_name, rejection_reason = null) => {
+const sendHospitalRejectionEmail = async (email, hospital_name) => {
   const mail = {
     from: '"Hospital Management System" <priyanshuredu12@gmail.com>',
     to: email,
@@ -415,21 +415,6 @@ const sendHospitalRejectionEmail = async (email, hospital_name, rejection_reason
                     </p>
                   </td>
                 </tr>
-
-                <!-- Reason for Rejection -->
-                ${rejection_rereason ? `
-                <tr>
-                  <td style="padding: 0 30px;">
-                    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; border-radius: 8px;">
-                      <h3 style="margin: 0 0 10px; color: #856404; font-size: 16px;">📋 Reason for Rejection</h3>
-                      <p style="margin: 0; color: #856404; line-height: 1.6;">${rejection_reason}</p>
-                    </div>
-                  </td>
-                </table>
-                ` : ''}
-
-                <!-- Next Steps -->
-                <tr>
                   <td style="padding: 20px 30px;">
                     <div style="background: #e3f2fd; border-radius: 12px; padding: 20px;">
                       <h3 style="margin: 0 0 15px; color: #1e3c72; font-size: 16px;">📝 What You Can Do Next</h3>
