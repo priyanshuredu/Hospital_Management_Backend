@@ -219,7 +219,10 @@ const getHospitalById = async (req,res) => {
     })
 
     try{
-        const hospital = await hospitalModel.findById(id);
+        const hospital = await hospitalModel.findById(id)
+        .populate("state","stateName")
+        .populate("district","districtName")
+        .populate("city","cityName");
 
         if(hospital) return res.status(200).json({
             success: true,
@@ -302,7 +305,7 @@ const updateHospitalStatus = async (req,res) => {
 
 const getAllHospitals = async (req,res) => {
     try{
-        const hospitals = await hospitalModel.find();
+        const hospitals = await hospitalModel.find().populate("city","cityName");
 
         if(hospitals.length === 0){
             return res.status(200).json({
