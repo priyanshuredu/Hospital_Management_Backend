@@ -7,6 +7,8 @@ const adminRoute = require('./route/adminRoute');
 const userRoute = require('./route/userRoute');
 const locationRoute = require('./route/locationRoute');
 const hospitalRoute = require('./route/hospitalRoute');
+const departmentRoute = require('./route/departmentRoute');
+const subDepartmentRoute = require('./route/subdepartmentRoute');
 
 const DB_URL = process.env.DB_URL;
 const PORT = process.env.PORT;
@@ -23,6 +25,8 @@ app.use('/admin', adminRoute);
 app.use('/user', userRoute);
 app.use('/location', locationRoute);
 app.use('/hospital', hospitalRoute);
+app.use('/department', departmentRoute);
+app.use('/sub-department', subDepartmentRoute)
 
 app.listen(process.env.PORT ,() => {
     console.log(`Server is running on ${process.env.PORT}.`)

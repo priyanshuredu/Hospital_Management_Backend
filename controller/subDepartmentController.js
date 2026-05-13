@@ -7,14 +7,14 @@ const createSubDepartment = async (req, res) => {
         success: false,
         message:"Req body not found."
     })
-
-    if(sub_departmentName.length < 21) {
+    
+    if(sub_departmentName.length > 20) {
         return res.status(400).json({
             success: false,
             message: 'Sub department name is greater than 20 characters.'
         });
     }
-
+    
     try{
         const existingSubDepartment = await subDepartmentModel.findOne({sub_departmentName});
         if(existingSubDepartment) return res.status(400).json({
@@ -22,8 +22,9 @@ const createSubDepartment = async (req, res) => {
             message: `${subDepartment_Data} is already exists.`
         })
         const subDepartment_Data = {sub_departmentName ,department: departmentId}
-
-        const result = await subDepartmentModel.create({subDepartment_Data});
+        
+        const result = await subDepartmentModel.create(subDepartment_Data);
+        console.log(result)
         if(result) return res.status(200).json({
             success: true,
             message:"New sub-department added successfully.",
@@ -39,8 +40,8 @@ const createSubDepartment = async (req, res) => {
 
 const getAllSubDepartments = async (req,res) => {
     try{
-        const subDepartments = await sub_departmentName.find();
-
+        const subDepartments = await subDepartmentModel.find();
+        console.log(subDepartments)
         return res.status(200).json({
             success: true,
             message: "All sub departments.",
@@ -133,4 +134,22 @@ const getSubDepartmentById = async (req, res) => {
     }
 }
 
-module.exports = {createSubDepartment ,getAllSubDepartments ,getSubDepartmentById ,updateSubDepartmentStatus ,deleteSubDepartment}; 
+const getSubDepByDepartment = async (req, res) => {
+    const { id } = req.params;
+    if(!id) return res.status(400).json({
+        message:"Department Id not found."
+    }) 
+    try {
+        const subdepartments = await subDepartmentModel.find({ department: id });
+        return res.status(200).json({
+            message: "Sub departments found",
+            subdepartments
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message
+        });
+    }
+}
+
+module.exports = {createSubDepartment ,getAllSubDepartments ,getSubDepartmentById ,updateSubDepartmentStatus ,deleteSubDepartment ,getSubDepByDepartment}; 

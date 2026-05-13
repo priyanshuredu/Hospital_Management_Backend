@@ -4,20 +4,22 @@ const mongoose = require('mongoose');
 
 const createDepartment = async (req,res) => {
     const { departmentName} = req.body;
+    console.log(departmentName)
     if(!departmentName) return res.status(400).json({
         success: false,
         message:"Req body not found."
     })
 
-    if(departmentName.length < 21) {
+    if(departmentName.length > 20) {
         return res.status(400).json({
             success: false,
             message: 'Department name is greater than 20 characters.'
         });
     }
-
+    
     try{
         const existingDepartment = await departmentModel.findOne({departmentName});
+        console.log("first",existingDepartment)
         if(existingDepartment) return res.status(400).json({
             success: false,
             message: `${departmentName} is already exists.`
@@ -70,6 +72,7 @@ const updateDepartmentStatus = async (req,res) => {
     }
     try{
         const updatedDepartment = await departmentModel.findByIdAndUpdate(id,{status: status},{new: true});
+        console.log(updatedDepartment)
 
         if(updatedDepartment) return res.status(200).json({
             success: true,
@@ -143,4 +146,4 @@ const getDepartmentById = async (req, res) => {
     }
 }
 
-module.exports = {createDepartment ,getAllDepartments ,getDepartmentById ,updateDepartmentStatus ,deleteDepartment}
+module.exports = {createDepartment ,getAllDepartments ,getDepartmentById ,updateDepartmentStatus ,deleteDepartment};
