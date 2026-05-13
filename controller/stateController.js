@@ -1,5 +1,6 @@
 const stateLoactionModel = require('../model/stateLocationModel');
 const districtLocationModel = require('../model/districtLocationModel');
+const cityLocationModel = require('../model/cityLocationModel');
 const mongoose = require('mongoose')
 
 const createState = async (req,res) => {
@@ -9,11 +10,11 @@ const createState = async (req,res) => {
     })
 
     try{
-        const result = await stateLoactionModel.create({stateName});
+        const state = await stateLoactionModel.create({stateName});
 
         if(result) return res.status(200).json({
             message:"New State added successfully.",
-            result
+            state
         })
     } catch(error){
         return res.status(500).json({
@@ -42,12 +43,21 @@ const updateStateStatus = async (req,res) => {
     if(!status) return res.status(400).json({
         message:"Req body not found."
     })
+    const session = await mongoose.startSession();
     try{
-        const result = await stateLoactionModel.findByIdAndUpdate(id,{status: status},{new: true});
+        await session.startTransaction();
+
+        const updatedCitiesStatus = await cityLocationModel.updateMany({state: {$eq: id}},{$set: { status: status}},{session});
+
+        const updatedDistrictsStatus = await districtLocationModel.updateMany({state: {$eq: id}},{$set: { status: status}},{session});
+
+        const updatedStatesStatus = await stateLoactionModel.findByIdAndUpdate(id,{status: status},{new: true});
 
         if(result) return res.status(200).json({
             message:`State ${status} successfully.`,
-            result
+            updatedStatesStatus,
+            updatedDistrictsStatus,
+            updatedCitiesStatus
         })
     } catch(error){
         return res.status(500).json({
@@ -66,6 +76,8 @@ const deleteState = async (req,res) => {
     try{
         await session.startTransaction();
 
+        const deletedCities = await cityLocationModel.deleteMany({state: id},{session});
+
         const deletedDistricts = await districtLocationModel.deleteMany({state: id},{session});
 
         const deletedState = await stateLoactionModel.findByIdAndDelete(id ,{session});
@@ -74,7 +86,8 @@ const deleteState = async (req,res) => {
         return res.status(200).json({
             message:`State and associated districts deleted successfully.`,
             deleteState,
-            deletedDistricts
+            deletedDistricts,
+            deletedCities
         })
     } catch(error){
         await session.abortTransaction();

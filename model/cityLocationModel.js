@@ -14,9 +14,9 @@ const cityLocationSchema = new mongoose.Schema({
         required: true
     },
     state:{
-            type: mongoose.Types.ObjectId,
-            ref :'stateLocation',
-            required: true
+        type: mongoose.Types.ObjectId,
+        ref :'stateLocation',
+        required: true
     },
     district:{
         type: mongoose.Types.ObjectId,
