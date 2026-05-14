@@ -80,7 +80,12 @@ const deleteCity = async (req,res) => {
 const getCityById = async (req, res) => {
     const { id } = req.params;
     try {
-        const city = await cityLocationModel.findById(id).populate('district');
+        const city = await cityLocationModel.findById(id)
+        .populate({path: 'district',
+            populate:{
+                path:'state'
+            }
+    });
         if (!city) {
             return res.status(404).json({ message: "City not found" });
         }

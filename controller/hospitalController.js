@@ -220,9 +220,15 @@ const getHospitalById = async (req,res) => {
 
     try{
         const hospital = await hospitalModel.findById(id)
-        .populate("state","stateName")
-        .populate("district","districtName")
-        .populate("city","cityName");
+        .populate({
+            path: 'city',
+            populate:{
+                path: 'district',
+                populate:{
+                    path:'state'
+                }
+            }
+        })
 
         if(hospital) return res.status(200).json({
             success: true,
@@ -260,7 +266,7 @@ const updateHospitalStatus = async (req,res) => {
     try{
         session.startTransaction();
 
-        const hospital = await hospitalModel.findByIdAndUpdate(id ,{status : status},{new :true});
+        const hospital = await hospitalModel.findByIdAndUpdate(id ,{status : status},{new :true},{session});
 
         const hospitalMail = hospital.email;
         const hospitalName = hospital.hospital_name;
@@ -279,10 +285,15 @@ const updateHospitalStatus = async (req,res) => {
             })
         } else if(hospital.status === 'approved') {
             const password = generatePasswordWithUUID();
+            const salt = bcrypt.genSaltSync(10);
+            const hash = bcrypt.hashSync(password ,salt);
             sendHospitalApprovalEmail(hospitalMail ,hospitalName ,password);
-            const user_data = {username: hospital.hospital_name ,email :hospital.email ,password ,role:"hospital-admin" }
+            const user_data = {username: hospital.hospital_name ,email :hospital.email ,password: hash ,role:"hospital-admin" }
 
-            const user = await userModel.create(user_data);
+            const user = await userModel.create(user_data,{session});
+            const userId = user._id
+
+            await hospitalModel.findByIdAndUpdate(id, {user: userId},{new: true},{session});
             if(user){
                 return res.status(200).json({
                 success: true,

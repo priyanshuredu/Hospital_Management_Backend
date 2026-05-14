@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const user = require('./userModel');
 
 const adminSchema = new mongoose.Schema({
     username:{
@@ -42,6 +43,10 @@ const adminSchema = new mongoose.Schema({
         type: String,
         enum: ['offline','online'],
         default: 'offline'
+    },
+    user:{
+        type: mongoose.Types.ObjectId,
+        ref: 'user'
     },
     role:{
         type: String,

@@ -63,7 +63,7 @@ const login = async (req,res) => {
         if(!user) return res.status(400).json({
             message:`No user found with ${email}`
         });
-        console.log("first",email,password)
+        // console.log("first",email,password)
 
         const id = user._id.toString();
         const username = user.username;

@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 const cityLocation = require('./cityLocationModel')
 const districtLocation = require('./districtLocationModel')
-const stateLocation = require('./stateLocationModel') 
+const stateLocation = require('./stateLocationModel')
+const user = require('./userModel') 
 
 const hospitalSchema = new mongoose.Schema({
     hospital_name:{
@@ -58,16 +59,6 @@ const hospitalSchema = new mongoose.Schema({
         ref: 'cityLocation',
         required: true
     },
-    district:{
-        type: mongoose.Types.ObjectId,
-        ref: 'districtLocation',
-        required: true
-    },
-    state:{
-        type: mongoose.Types.ObjectId,
-        ref: 'stateLocation',
-        required: true
-    },
     country:{
         type: String,
         default: "India"
@@ -86,15 +77,11 @@ const hospitalSchema = new mongoose.Schema({
     },
     emergency_service:{
         type: Boolean,
-        required: true
+        default: false
     },
     ambulance_service:{
         type: Boolean,
-        required: true
-    },
-    departments:{
-        type: Array,
-        required: true,
+        default: false
     },
     hospital_manager:{
         type: String,
@@ -111,7 +98,11 @@ const hospitalSchema = new mongoose.Schema({
         type: String,
         maxLength: 500,
         required: true
-    }
+    },
+    user:{
+            type: mongoose.Types.ObjectId,
+            ref: 'user'
+    },
 });
 
 const hospitalModel = mongoose.model('hospital',hospitalSchema);

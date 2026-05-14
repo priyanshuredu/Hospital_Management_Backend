@@ -3,10 +3,11 @@ const bcrypt = require('bcrypt');
 const userModel = require('../model/userModel')
 const mongoose = require('mongoose');
 const {sendWelcomeEmail} = require('../utility/mailServices')
+const generatePasswordWithUUID = require('../utility/uuidGenerator')
 
 const createAdmin = async (req,res) => {
-    const {username ,email ,phoneNumber ,age ,bg_description ,gender ,password} = req.body;
-    if(!username || !email || !phoneNumber || !age || !bg_description || !gender || !password) return res.status(400).json({
+    const {username ,email ,phoneNumber ,age ,bg_description ,gender } = req.body;
+    if(!username || !email || !phoneNumber || !age || !bg_description || !gender ) return res.status(400).json({
         message:"Req body not found."
     })
 
@@ -26,16 +27,17 @@ const createAdmin = async (req,res) => {
             message:`Username is already taken ${username}.`
         })
 
+        const password = generatePasswordWithUUID()
         const salt = bcrypt.genSaltSync(10);
         const hash = bcrypt.hashSync(password ,salt);
-        const admin = {username ,email ,phoneNumber ,age ,bg_description ,gender ,password:hash};
         const user = {username ,email ,password:hash ,role:"admin"};
-
+        const userResult = await userModel.create(user,{session});
+        const userId = userResult._id;
+        
+        const admin = {username ,email ,phoneNumber ,age ,bg_description ,gender ,password:hash , user:userId};
         const adminResult = new adminModel(admin);
         adminResult.save({session});
-        
-        const userResult = new userModel(user);
-        userResult.save({session});
+
 
         await session.commitTransaction();
         if(adminResult && userResult) {

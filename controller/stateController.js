@@ -12,7 +12,7 @@ const createState = async (req,res) => {
     try{
         const state = await stateLoactionModel.create({stateName});
 
-        if(result) return res.status(200).json({
+        if(state) return res.status(200).json({
             message:"New State added successfully.",
             state
         })
