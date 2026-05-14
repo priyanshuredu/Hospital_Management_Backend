@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         unique: [true, "Username not available."],
         minLength: 4,
-        maxLength: 16,
+        maxLength: 35,
         required: true
     },
     email:{

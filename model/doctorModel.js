@@ -7,7 +7,6 @@ const doctorSchema = new mongoose.Schema({
         type: String,
         maxLength: 35,
         required: true,
-        index: true
     },
     email:{
         type: String,
@@ -26,7 +25,6 @@ const doctorSchema = new mongoose.Schema({
     },
     age:{
         type: Number,
-        maxLength: 2,
         min: 24,
         max: 70,
         required: true
@@ -46,7 +44,6 @@ const doctorSchema = new mongoose.Schema({
     yearOfCompletion:{
         type: Number,
         required: true,
-        min: Date.now
     },
     experience:{
         type: Number,

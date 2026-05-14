@@ -3,67 +3,98 @@ const doctorImageModel = require('../model/doctorImageModel')
 const userModel = require('../model/userModel');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt')
-const sendWelcomeEmail = require('../utility/mailServices')
+const {sendWelcomeEmail} = require('../utility/mailServices')
 const { generatePasswordWithUUID } = require('../utility/uuidGenerator');
 
 const createDoctor = async (req,res) => {
-    const images = req.files;
-    const hospitalId = ''
-    const {doctor_name, email, phone ,gender ,age ,qualification ,degree ,institution ,yearOfCompletion ,experience ,sub_department , consultation_fee} = req.body;
+    const images = req.files.images;
+    const hospitalId = '6a0375dae1ad0eaad0f5238a'
+    const {doctor_name, email, phone ,gender ,age ,qualification ,degree ,institution ,yearOfCompletion ,experience ,sub_department , consultation_fee ,imageNames} = req.body;
 
     if(!images) return res.status(400).json({
         message: "No images found."
     })
+    console.log("first :",req.body)
 
-    if(!doctor_name|| !email|| !phone || !gender || !age || !qualification || !degree || !institution || !yearOfCompletion ||!experience || !sub_department || !consultation_fee) return res.status(400).json({
-        message: "No request body found."
-    })
+    // if(!doctor_name|| !email|| !phone || !gender || !age || !qualification || !degree || !institution || !yearOfCompletion ||!experience || !sub_department || !consultation_fee) return res.status(400).json({
+    //     message: "No request body found."
+    // })
 
     const session = await mongoose.startSession();
     try{
         session.startTransaction();
-
-        const existingDoctor = await doctorModel.findOne({email},{session});
+        
+        const existingDoctor = await doctorModel.findOne({email});
         if(existingDoctor) return res.status(400).json({
             message: `Doctor already exists with ${email}.`,
             existingDoctor
         })
+
         const password = generatePasswordWithUUID();
         const salt = bcrypt.genSaltSync(10);
         const hash = bcrypt.hashSync(password ,salt);
+        const username = doctor_name
 
-        const user_data = {username: doctor_name ,email ,password: hash ,role:"doctor"}
-        const user = await userModel.create(user_data,{session});
+        const user_data = {username ,email ,password: hash ,role:"doctor"}
+        console.log("user :",user_data)
+        const user = await userModel.create(user_data);
+        // user.save({session});
 
         if(user) {
-            sendWelcomeEmail(email ,doctor_name ,password ,role="doctor");
+            const role = user.role;
+            sendWelcomeEmail(email ,username ,password ,role);
 
             const doctor_data = {doctor_name, email, phone ,gender ,age ,qualification ,degree ,institution ,yearOfCompletion ,experience ,sub_department , consultation_fee ,hospital: hospitalId};
-            const doctor = await doctorModel.create(doctor_data,{session});
+
+            const doctor = await doctorModel.create(doctor_data);
+            // doctor.save({session});
+            console.log("doc :",doctor)
+
 
             if(doctor) {
                 if(images){
-                    const imagesKeys = Object.keys(images);
-                    imagesKeys.map( async (key) => {
-                        const uploadedImage = await uploadImage(images.key);
-                        
-                        if(!uploadedImage) return res.status(404).json({
-                            message:"Failed to make image url."
-                        })
-                        const imgUrl = uploadedImage[0].url;
-                        console.log("img-url:",imgUrl)
-        
-                        const image_data = {
-                            img_name: images.key,
-                            img_url: imgUrl,
-                            hospital: result._id
-                        }
-        
-                        const addedImage = await doctorImageModel.create(image_data,{session})
-                        if(!addedImage) return res.status(400).json({
-                            message:"Failed to add image."
-                        })
-                    })
+                const imagesKeys = imageNames;
+                    
+                // Process all images in parallel
+                const uploadPromises = imagesKeys.map(async (key, index) => {
+                    const imgObj = images[index];
+                    console.log("img,0",imgObj);
+
+                    const uploadedImage = await uploadImage(imgObj);
+                    console.log("first",uploadedImage)
+
+                    if (!uploadedImage) {
+                        throw new Error(`Failed to make image url for ${key}`);
+                    }
+
+                    const imgUrl = uploadedImage[0].url;
+                    console.log("img-url:", imgUrl);
+
+                    const image_data = {
+                        img_name: key, // Fix: use the key directly
+                        img_url: imgUrl,
+                        doctor: doctor._id // Assuming it's doctor, not hospital
+                    };
+
+                    const addedImage = new doctorImageModel(image_data);
+                    addedImage.save({session})
+
+                    console.log("first",addedImage)
+
+                    if (!addedImage) {
+                        throw new Error(`Failed to add image for ${key}`);
+                    }
+
+                    return addedImage;
+                });
+
+                try {
+                    const uploadedImages = await Promise.all(uploadPromises);
+                    // All images uploaded successfully
+                } catch (error) {
+                    return res.status(400).json({
+                        message: error.message
+                    });
                 }
             } else return res.status(400).json({
                 message: "Failed to create doctor."
@@ -71,7 +102,8 @@ const createDoctor = async (req,res) => {
         } else return res.status(400).json({
                 message: "Failed to create user."
         }) 
-    } catch(error) {
+    } 
+} catch(error) {
         session.abortTransaction();
         return res.status(500).json({
             message: error.message

@@ -40,7 +40,7 @@ const createSubDepartment = async (req, res) => {
 
 const getAllSubDepartments = async (req,res) => {
     try{
-        const subDepartments = await subDepartmentModel.find();
+        const subDepartments = await subDepartmentModel.find().populate('department','departmentName');
         console.log(subDepartments)
         return res.status(200).json({
             success: true,

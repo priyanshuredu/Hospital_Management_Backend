@@ -3,4 +3,16 @@ const router = express.Router();
 const auth = require('../middleware/auth')
 const {createDoctor ,getAllDoctors ,getDoctorById ,updateDoctorStatus ,updateDoctor ,getDoctorByHospital ,deleteDoctor} = require('../controller/doctorController');
 
+router.post('/create', createDoctor);
+
+router.get('/all', getAllDoctors);
+router.get('/:id', getDoctorById);
+router.get('/hospital/:id', getDoctorByHospital);
+
+router.patch('/update-status', updateDoctorStatus);
+router.put('/update', updateDoctor);
+
+router.delete('/:id', deleteDoctor);
+
+
 module.exports = router;
