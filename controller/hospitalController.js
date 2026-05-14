@@ -2,39 +2,75 @@ const bcrypt = require('bcrypt');
 const userModel = require('../model/userModel')
 const hospitalModel = require('../model/hospitalModel')
 const mongoose = require('mongoose');
+const upload = require('../utility/cloudinary');
 const {sendWelcomeEmail ,sendHospitalApprovalEmail ,sendHospitalRejectionEmail} = require('../utility/mailServices')
 const {generatePasswordWithUUID} = require('../utility/uuidGenerator');
+const hospitalImageModel = require('../model/hospitalImageModel');
 
 const createHospital = async (req,res) => {
-    const {hospital_name, registration_no, hospital_type, ownership, established_year, email, primary_phone, secondary_phone, hospital_address, city, district, state, total_doctors, total_beds, icu_beds, emergency_service, ambulance_service, departments, hospital_manager, hospital_description} = req.body;
-    console.log("Req body :",req.body)
+    const images = req.files
+    console.log("req files:",req.files);
+    console.log("images:",images);  
+    const id = '6a059ba01d0889d79e015a1e'
+    const imagesKeys = Object.keys(images);
+            imagesKeys.map( async (key) => {
+                const image = images[key];
+                console.log("image :",image)
+                const uploadedImage = await upload.uploadImage(image);
+                
+                if(!uploadedImage) return res.status(404).json({
+                    message:"Failed to make image url."
+                })
+                const imgUrl = uploadedImage[0].url;
+                console.log("img-url:",imgUrl)
 
+                const image_data = {
+                    img_name: key,
+                    img_url: imgUrl,
+                    hospital: id
+                }
+
+                const addedImage = await hospitalImageModel.create(image_data)
+                if(!addedImage) return res.status(400).json({
+                    message:"Failed to add image."
+                })
+            })
+    console.log("req body:",req.body);
+
+    return res.status(200).json({
+                    message:"Failed to add image."
+                })
+    const {hospital_name, registration_no, hospital_type, ownership, established_year, email, primary_phone, secondary_phone, hospital_address, city, total_doctors, total_beds, icu_beds, emergency_service, ambulance_service, hospital_manager, hospital_description} = req.body;
+    
     const requiredFields = [
-    'hospital_name', 'registration_no', 'hospital_type', 'email', 
-    'primary_phone', 'hospital_address', 'city', 'district', 
-    'state', 'total_doctors', 'total_beds', 'icu_beds', 
-    'emergency_service', 'ambulance_service', 'departments', 
-    'hospital_manager', 'hospital_description'
-];
+        'hospital_name', 'registration_no', 'hospital_type', 'email', 
+        'primary_phone', 'hospital_address', 'city', 'total_doctors', 'total_beds', 'icu_beds', 
+        'emergency_service', 'ambulance_service', 
+        'hospital_manager', 'hospital_description'
+    ];
 
-const missingFields = requiredFields.filter(field => !req.body[field]);
-
-if (missingFields.length > 0) {
-    return res.status(400).json({
-        success: false,
-        message: `Missing required fields: ${missingFields.join(', ')}`,
-        missingFields: missingFields
-    });
-}
-
+    if(!images) return res.status(400).json({
+        message: "No images found."
+    })
+    
+    const missingFields = requiredFields.filter(field => !req.body[field]);
+    
+    // if (missingFields.length > 0) {
+    //     return res.status(400).json({
+    //         success: false,
+    //         message: `Missing required fields: ${missingFields.join(', ')}`,
+    //         missingFields: missingFields
+    //     });
+    // }
+    
     // if(!hospital_name || !registration_no || !hospital_type || !ownership || !established_year || !email || !primary_phone || !secondary_phone || !hospital_address || !city || !district || !state || !total_doctors || !total_beds || !icu_beds || !emergency_service || !ambulance_service || !departments || !hospital_manager || !hospital_description) return res.status(400).json({
-    // message: 'Req body not found.'
-    // });
-
-    if(hospital_name.length < 10 || hospital_name.length > 100) {
-        return res.status(400).json({
-            success: false,
-            message: 'Hospital name must be between 10 and 100 characters.'
+        // message: 'Req body not found.'
+        // });
+        
+        if(hospital_name.length < 10 || hospital_name.length > 100) {
+            return res.status(400).json({
+                success: false,
+                message: 'Hospital name must be between 10 and 100 characters.'
         });
     }
     
@@ -58,7 +94,7 @@ if (missingFields.length > 0) {
             message: 'Ownership must be one of: individual, partnership, pvt ltd, ngo.'
         });
     }
-
+    
     // 6. established_year validations
     if(established_year.toString().length !== 4 || established_year < 1800 || established_year > new Date().getFullYear()) {
         return res.status(400).json({
@@ -66,7 +102,7 @@ if (missingFields.length > 0) {
             message: `Established year must be a valid 4-digit year between 1800 and ${new Date().getFullYear()}.`
         });
     }
-
+    
     // 7. email validations (basic)
     const emailRegex = /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/;
     if(!emailRegex.test(email)) {
@@ -75,7 +111,7 @@ if (missingFields.length > 0) {
             message: 'Please provide a valid email address.'
         });
     }
-
+    
     // 8. primary_phone validations
     if(primary_phone.toString().length !== 10 || isNaN(primary_phone)) {
         return res.status(400).json({
@@ -91,7 +127,7 @@ if (missingFields.length > 0) {
             message: 'Secondary phone number must be exactly 10 digits.'
         });
     }
-
+    
     // 10. hospital_address validations
     if(hospital_address.length > 200) {
         return res.status(400).json({
@@ -99,7 +135,7 @@ if (missingFields.length > 0) {
             message: 'Hospital address cannot exceed 200 characters.'
         });
     }
-
+    
     // 11. city, district, state validations (MongoDB ObjectId check)
     if(!mongoose.Types.ObjectId.isValid(city)) {
         return res.status(400).json({
@@ -107,19 +143,6 @@ if (missingFields.length > 0) {
             message: 'Invalid city ID format.'
         });
     }
-    if(!mongoose.Types.ObjectId.isValid(district)) {
-        return res.status(400).json({
-            success: false,
-            message: 'Invalid district ID format.'
-        });
-    }
-    if(!mongoose.Types.ObjectId.isValid(state)) {
-        return res.status(400).json({
-            success: false,
-            message: 'Invalid state ID format.'
-        });
-    }
-
     // 12. total_doctors validations
     if(total_doctors < 0 || !Number.isInteger(total_doctors)) {
         return res.status(400).json({
@@ -127,7 +150,7 @@ if (missingFields.length > 0) {
             message: 'Total doctors must be a positive integer.'
         });
     }
-
+    
     // 13. total_beds validations
     if(total_beds < 0 || !Number.isInteger(total_beds)) {
         return res.status(400).json({
@@ -135,7 +158,7 @@ if (missingFields.length > 0) {
             message: 'Total beds must be a positive integer.'
         });
     }
-
+    
     // 14. icu_beds validations
     if(icu_beds < 0 || !Number.isInteger(icu_beds)) {
         return res.status(400).json({
@@ -143,7 +166,7 @@ if (missingFields.length > 0) {
             message: 'ICU beds must be a positive integer.'
         });
     }
-
+    
     // 15. ICU beds cannot exceed total beds
     if(icu_beds > total_beds) {
         return res.status(400).json({
@@ -151,7 +174,7 @@ if (missingFields.length > 0) {
             message: 'ICU beds cannot exceed total beds.'
         });
     }
-
+    
     // 16. emergency_service validations (boolean)
     if(typeof emergency_service !== 'boolean') {
         return res.status(400).json({
@@ -159,7 +182,7 @@ if (missingFields.length > 0) {
             message: 'Emergency service must be true or false.'
         });
     }
-
+    
     // 17. ambulance_service validations (boolean)
     if(typeof ambulance_service !== 'boolean') {
         return res.status(400).json({
@@ -167,15 +190,7 @@ if (missingFields.length > 0) {
             message: 'Ambulance service must be true or false.'
         });
     }
-
-    // 18. departments validations
-    if(!Array.isArray(departments) || departments.length === 0) {
-        return res.status(400).json({
-            success: false,
-            message: 'Departments must be a non-empty array.'
-        });
-    }
-
+    
     // 19. hospital_manager validations
     if(hospital_manager.length > 50) {
         return res.status(400).json({
@@ -183,7 +198,7 @@ if (missingFields.length > 0) {
             message: 'Hospital manager name cannot exceed 50 characters.'
         });
     }
-
+    
     // 20. hospital_description validations
     if(hospital_description.length > 500) {
         return res.status(400).json({
@@ -191,10 +206,39 @@ if (missingFields.length > 0) {
             message: 'Hospital description cannot exceed 500 characters.'
         });
     }
-
+    console.log("Req files:",req.files)
+    const session = await mongoose.startSession();
     try{
-        const hospital_data = {hospital_name, registration_no, hospital_type, ownership, established_year, email, primary_phone, secondary_phone, hospital_address, city, district, state, total_doctors, total_beds , icu_beds, emergency_service, ambulance_service, departments, hospital_manager, hospital_description};
-        const result = await hospitalModel.create(hospital_data);
+        session.startTransaction();
+        
+        const hospital_data = {hospital_name, registration_no, hospital_type, ownership, established_year, email, primary_phone, secondary_phone, hospital_address, city, total_doctors, total_beds , icu_beds, emergency_service, ambulance_service, hospital_manager, hospital_description};
+
+        const result = await hospitalModel.create(hospital_data,{session});
+        
+        if(images) {
+            console.log("img-data:")
+            const imagesKeys = Object.keys(images);
+            imagesKeys.map( async (key) => {
+                const uploadedImage = await uploadImage(images.key);
+                
+                if(!uploadedImage) return res.status(404).json({
+                    message:"Failed to make image url."
+                })
+                const imgUrl = uploadedImage[0].url;
+                console.log("img-url:",imgUrl)
+
+                const image_data = {
+                    img_name: images.key,
+                    img_url: imgUrl,
+                    hospital: result._id
+                }
+
+                const addedImage = await hospitalImageModel.create(image_data,{session})
+                if(!addedImage) return res.status(400).json({
+                    message:"Failed to add image."
+                })
+            })
+        }
 
         return res.status(200).json({
             success: true,
@@ -202,10 +246,13 @@ if (missingFields.length > 0) {
             result
         })
     } catch(error) {
+        session.abortTransaction();
         return res.status(500).json({
             message: error.message,
             success: false
         })
+    } finally {
+        session.endSession();
     }
 
 }
