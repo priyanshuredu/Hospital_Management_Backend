@@ -32,6 +32,9 @@ const userSchema = new mongoose.Schema({
         enum: ['active','inActive'],
         default:'active'
     },
+    profile_image:{
+        type: String,
+    },
     createdAt:{
         type: Date,
         default: Date.now

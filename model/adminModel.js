@@ -36,9 +36,6 @@ const adminSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    profile_image:{
-        type: String,
-    },
     currentStatus:{
         type: String,
         enum: ['offline','online'],
