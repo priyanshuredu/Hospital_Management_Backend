@@ -25,7 +25,6 @@ const doctorSchema = new mongoose.Schema({
     },
     age:{
         type: Number,
-        min: 24,
         max: 70,
         required: true
     },

@@ -1,5 +1,5 @@
 const doctorImageModel = require('../model/doctorImageModel')
-
+const uploadImage = require('../utility/cloudinary')
 const addImage = async (req, res) => {
 
 }

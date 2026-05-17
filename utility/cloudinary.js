@@ -1,18 +1,18 @@
 const cloudinary = require('cloudinary').v2;
 
 cloudinary.config({
-    cloud_name:'dqfhn7rw3',
-    api_key:'382695276612379',
-    api_secret:'3XWIpGNiRSe2K2Cs2t9-fUtPPY0'
+    cloud_name:process.env.cloud_name,
+    api_key:process.env.api_key,
+    api_secret:process.env.api_secret
 })
 
 exports.uploadImage = async (files) => {
-    console.log(`>>>>>>files`, files);
+    // console.log(`>>>>>>files`, files);
    
     const fileArray = Object.values(files);
     const results = [];
     
-    console.log("files array:", fileArray);
+    // console.log("files array:", fileArray);
     
     for (const file of fileArray) {
         try {
@@ -30,13 +30,13 @@ exports.uploadImage = async (files) => {
             } else if (file.buffer) {
                 fileBuffer = file.buffer;
             } else {
-                console.error('Unknown file structure:', file);
+                // console.error('Unknown file structure:', file);
                 continue;
             }
             
             // Check if buffer is empty
             if (!fileBuffer || fileBuffer.length === 0) {
-                console.error('Empty file buffer');
+                // console.error('Empty file buffer');
                 continue;
             }
             
@@ -47,7 +47,7 @@ exports.uploadImage = async (files) => {
                         resource_type: 'auto' // auto-detect file type
                     },
                     (error, result) => {
-                        console.log(`Upload result for ${file.name || 'file'}:`, error || result);
+                        // console.log(`Upload result for ${file.name || 'file'}:`, error || result);
                        
                         if (error) {
                             reject(error);
@@ -69,7 +69,7 @@ exports.uploadImage = async (files) => {
             });
             
         } catch (error) {
-            console.error('Error uploading file:', error);
+            // console.error('Error uploading file:', error);
             results.push({
                 success: false,
                 error: error.message,

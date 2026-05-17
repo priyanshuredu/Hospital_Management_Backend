@@ -2,6 +2,7 @@ const doctorModel = require('../model/doctorModel')
 const doctorImageModel = require('../model/doctorImageModel')
 const userModel = require('../model/userModel');
 const mongoose = require('mongoose');
+const upload = require('../utility/cloudinary')
 const bcrypt = require('bcrypt')
 const {sendWelcomeEmail} = require('../utility/mailServices')
 const { generatePasswordWithUUID } = require('../utility/uuidGenerator');
@@ -14,11 +15,6 @@ const createDoctor = async (req,res) => {
     if(!images) return res.status(400).json({
         message: "No images found."
     })
-    console.log("first :",req.body)
-
-    // if(!doctor_name|| !email|| !phone || !gender || !age || !qualification || !degree || !institution || !yearOfCompletion ||!experience || !sub_department || !consultation_fee) return res.status(400).json({
-    //     message: "No request body found."
-    // })
 
     const session = await mongoose.startSession();
     try{
@@ -36,9 +32,8 @@ const createDoctor = async (req,res) => {
         const username = doctor_name
 
         const user_data = {username ,email ,password: hash ,role:"doctor"}
-        console.log("user :",user_data)
-        const user = await userModel.create(user_data);
-        // user.save({session});
+        const user = await userModel.create([user_data],{session});
+        console.log(">>>>>>>>>>>>>>>36user :",user)
 
         if(user) {
             const role = user.role;
@@ -46,69 +41,75 @@ const createDoctor = async (req,res) => {
 
             const doctor_data = {doctor_name, email, phone ,gender ,age ,qualification ,degree ,institution ,yearOfCompletion ,experience ,sub_department , consultation_fee ,hospital: hospitalId};
 
-            const doctor = await doctorModel.create(doctor_data);
-            // doctor.save({session});
-            console.log("doc :",doctor)
-
+            const doctor = await doctorModel.create([doctor_data],{session});
+            console.log(">>>>>>>>>>>>>>>>>>>.45doc :",doctor)
 
             if(doctor) {
                 if(images){
-                const imagesKeys = imageNames;
+                    const imagesKeys = imageNames;
                     
-                // Process all images in parallel
-                const uploadPromises = imagesKeys.map(async (key, index) => {
-                    const imgObj = images[index];
-                    console.log("img,0",imgObj);
+                    const uploadPromises = imageNames.map(async (key, index) => {
+                        
+                        const imgObj = images[index];
+                        console.log(`>>>>>>>>>>>>>>>53`);
+                        
+                        
+                        const uploadedImage = await upload.uploadImage(imgObj);
+console.log(`>>>>>>>>>>>>>>>>>>>>>57`);
 
-                    const uploadedImage = await uploadImage(imgObj);
-                    console.log("first",uploadedImage)
+                        if (!uploadedImage) {
+                            throw new Error(`Failed to make image url for ${key}`);
+                        }
 
-                    if (!uploadedImage) {
-                        throw new Error(`Failed to make image url for ${key}`);
-                    }
+                        const imgUrl = uploadedImage[0].url;
+                        console.log(">>>>>>>>>>>>>>>>..61img-url:", imgUrl);
+                        const doctorId = doctor[0]._id
 
-                    const imgUrl = uploadedImage[0].url;
-                    console.log("img-url:", imgUrl);
+                        const image_data = {
+                            img_name: key,
+                            img_url: imgUrl,
+                            doctor: doctorId
+                        };
+                        console.log(">>>>>>>>>>>>>>>>>>>>>72img-data:", image_data);
 
-                    const image_data = {
-                        img_name: key, // Fix: use the key directly
-                        img_url: imgUrl,
-                        doctor: doctor._id // Assuming it's doctor, not hospital
-                    };
+                        const addedImage = await doctorImageModel.create([image_data],{session});
+                        console.log(">>>>>>>>>>>>>>>>>>75first",addedImage)
 
-                    const addedImage = new doctorImageModel(image_data);
-                    addedImage.save({session})
-
-                    console.log("first",addedImage)
-
-                    if (!addedImage) {
-                        throw new Error(`Failed to add image for ${key}`);
-                    }
-
-                    return addedImage;
-                });
-
-                try {
-                    const uploadedImages = await Promise.all(uploadPromises);
-                    // All images uploaded successfully
-                } catch (error) {
-                    return res.status(400).json({
-                        message: error.message
+                        if (!addedImage) {
+                            throw new Error(`Failed to add image for ${key}`);
+                        }
+                        return addedImage;
                     });
-                }
+
+                    console.log(`>>>>>>>>>>>>>>84`,uploadPromises);
+                    
+                    try {
+                        const uploadedImages = await Promise.allSettled(uploadPromises);
+                        console.log(`>>>>>>>>>>>>>>>>>84>>`,uploadedImages);
+                        await session.commitTransaction();
+                    } catch (error) {
+                        console.log(">>>>>>>>>>>>>>>>86error :",error.message)
+                        return res.status(400).json({
+                            message: error.message
+                        });
+                    }
+                } else return res.status(400).json({
+                    message: "Failed to create doctor."
+                })
             } else return res.status(400).json({
-                message: "Failed to create doctor."
-            })
-        } else return res.status(400).json({
                 message: "Failed to create user."
-        }) 
-    } 
-} catch(error) {
+            }) 
+        } 
+    } catch(error) {
+        console.log(`>>>>>>>>>>>>>>???????????????????????????`);
+        
         session.abortTransaction();
+        console.log(">>>>>>>>>>>>>>>>>>>>>>>>97error :",error.message)
         return res.status(500).json({
             message: error.message
         })
     } finally {
+        console.log(`>>>>>>>>>>>>>>>>>>>>105>`);
         session.endSession();
     }  
 }
@@ -267,3 +268,10 @@ const deleteDoctor = async (req,res) => {
 }
 
 module.exports = {createDoctor ,getAllDoctors ,getDoctorById ,updateDoctorStatus ,updateDoctor ,getDoctorByHospital ,deleteDoctor};
+
+
+
+
+// const str = "Hello World";
+// const count = str.replace(/\s/g, '').length;
+// console.log(count);
