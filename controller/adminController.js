@@ -30,20 +30,21 @@ const createAdmin = async (req,res) => {
         const password = generatePasswordWithUUID()
         const salt = bcrypt.genSaltSync(10);
         const hash = bcrypt.hashSync(password ,salt);
-        const user = {username ,email ,password:hash ,role:"admin"};
-        const userResult = await userModel.create(user,{session});
-        const userId = userResult._id;
+
+        const admin = {username ,email ,phoneNumber ,age ,bg_description ,gender};
+        const adminResult = await adminModel.create([admin],{session});
+
+        const adminId = adminResult[0]._id;
+        const user = {username ,email ,password:hash ,role:"admin" ,admin: adminId};
+        const userResult = await userModel.create([user],{session});
         
-        const admin = {username ,email ,phoneNumber ,age ,bg_description ,gender ,password:hash , user:userId};
-        const adminResult = new adminModel(admin);
-        adminResult.save({session});
 
 
-        await session.commitTransaction();
         if(adminResult && userResult) {
             const userRole = userResult.role;
             sendWelcomeEmail(email ,username ,password , userRole);
-
+            
+            await session.commitTransaction();
             return res.status(200).json({
             message:"Admin created successfully in both tables",
             adminResult,
@@ -63,7 +64,7 @@ const createAdmin = async (req,res) => {
 const updateAdminInfo = async (req,res) => {
     const {username ,email ,phoneNumber ,age ,bg_description ,gender } = req.body;
     const id = req.user._id
-    console.log("Id :",id);
+    // console.log("Id :",id);
     if(!username || !email || !phoneNumber || !age || !bg_description || !gender) return res.status(400).json({
         message:"Req body not found."
     })

@@ -331,7 +331,7 @@ const getUser = async (req,res) =>{
 }
 
 const updateProfile = async (req,res) => {
-    // console.log("image:",req.files.image)
+    console.log("image:",req.files.image)
     const id = req.user._id
     const image =req.files.image
 

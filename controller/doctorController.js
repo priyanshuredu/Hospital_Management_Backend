@@ -29,9 +29,15 @@ const createDoctor = async (req,res) => {
         const password = generatePasswordWithUUID();
         const salt = bcrypt.genSaltSync(10);
         const hash = bcrypt.hashSync(password ,salt);
+        
+        const doctor_data = {doctor_name, email, phone ,gender ,age ,qualification ,degree ,institution ,yearOfCompletion ,experience ,sub_department , consultation_fee ,hospital: hospitalId};
+        
+        const doctor = await doctorModel.create([doctor_data],{session});
+        const docId = doctor[0]._id
+        // console.log(">>>>>>>>>>>>>>>>>>>.45doc :",doctor)
+        
         const username = doctor_name
-
-        const user_data = {username ,email ,password: hash ,role:"doctor"}
+        const user_data = {username ,email ,password: hash ,role:"doctor" ,doctor: docId}
         const user = await userModel.create([user_data],{session});
         console.log(">>>>>>>>>>>>>>>36user :",user)
 
@@ -39,10 +45,7 @@ const createDoctor = async (req,res) => {
             const role = user.role;
             sendWelcomeEmail(email ,username ,password ,role);
 
-            const doctor_data = {doctor_name, email, phone ,gender ,age ,qualification ,degree ,institution ,yearOfCompletion ,experience ,sub_department , consultation_fee ,hospital: hospitalId};
-
-            const doctor = await doctorModel.create([doctor_data],{session});
-            console.log(">>>>>>>>>>>>>>>>>>>.45doc :",doctor)
+            
 
             if(doctor) {
                 if(images){
@@ -51,18 +54,18 @@ const createDoctor = async (req,res) => {
                     const uploadPromises = imageNames.map(async (key, index) => {
                         
                         const imgObj = images[index];
-                        console.log(`>>>>>>>>>>>>>>>53`);
+                        // console.log(`>>>>>>>>>>>>>>>53`);
                         
                         
                         const uploadedImage = await upload.uploadImage(imgObj);
-console.log(`>>>>>>>>>>>>>>>>>>>>>57`);
+                        // console.log(`>>>>>>>>>>>>>>>>>>>>>57`);
 
                         if (!uploadedImage) {
                             throw new Error(`Failed to make image url for ${key}`);
                         }
 
                         const imgUrl = uploadedImage[0].url;
-                        console.log(">>>>>>>>>>>>>>>>..61img-url:", imgUrl);
+                        // console.log(">>>>>>>>>>>>>>>>..61img-url:", imgUrl);
                         const doctorId = doctor[0]._id
 
                         const image_data = {
@@ -70,10 +73,10 @@ console.log(`>>>>>>>>>>>>>>>>>>>>>57`);
                             img_url: imgUrl,
                             doctor: doctorId
                         };
-                        console.log(">>>>>>>>>>>>>>>>>>>>>72img-data:", image_data);
+                        // console.log(">>>>>>>>>>>>>>>>>>>>>72img-data:", image_data);
 
                         const addedImage = await doctorImageModel.create([image_data],{session});
-                        console.log(">>>>>>>>>>>>>>>>>>75first",addedImage)
+                        // console.log(">>>>>>>>>>>>>>>>>>75first",addedImage)
 
                         if (!addedImage) {
                             throw new Error(`Failed to add image for ${key}`);
@@ -81,14 +84,14 @@ console.log(`>>>>>>>>>>>>>>>>>>>>>57`);
                         return addedImage;
                     });
 
-                    console.log(`>>>>>>>>>>>>>>84`,uploadPromises);
+                    // console.log(`>>>>>>>>>>>>>>84`,uploadPromises);
                     
                     try {
                         const uploadedImages = await Promise.allSettled(uploadPromises);
-                        console.log(`>>>>>>>>>>>>>>>>>84>>`,uploadedImages);
+                        // console.log(`>>>>>>>>>>>>>>>>>84>>`,uploadedImages);
                         await session.commitTransaction();
                     } catch (error) {
-                        console.log(">>>>>>>>>>>>>>>>86error :",error.message)
+                        // console.log(">>>>>>>>>>>>>>>>86error :",error.message)
                         return res.status(400).json({
                             message: error.message
                         });
@@ -101,36 +104,38 @@ console.log(`>>>>>>>>>>>>>>>>>>>>>57`);
             }) 
         } 
     } catch(error) {
-        console.log(`>>>>>>>>>>>>>>???????????????????????????`);
+        // console.log(`>>>>>>>>>>>>>>???????????????????????????`);
         
         session.abortTransaction();
-        console.log(">>>>>>>>>>>>>>>>>>>>>>>>97error :",error.message)
+        // console.log(">>>>>>>>>>>>>>>>>>>>>>>>97error :",error.message)
         return res.status(500).json({
             message: error.message
         })
     } finally {
-        console.log(`>>>>>>>>>>>>>>>>>>>>105>`);
+        // console.log(`>>>>>>>>>>>>>>>>>>>>105>`);
         session.endSession();
     }  
 }
 
 const getAllDoctors = async (req,res) => {
     try{
+        console.log("first")
         const doctors = await doctorModel.find()
-                                .populate("hospital","hospital_name")
-                                .populate({
-                                    path: 'sub_department',
-                                    populate: {
-                                        path: 'department'
-                                    }
-                                });
+        .populate("hospital")
+        .populate({
+            path: 'sub_department',
+            populate: {
+                path: 'department'
+            }
+        });
+        console.log(":",doctors)
 
-        if(doctors.length === 0){
-            return res.status(200).json({
-                success: true,
-                message: "No doctors present in database."
-            })
-        } 
+        // if(doctors.length === 0){
+        //     return res.status(200).json({
+        //         success: true,
+        //         message: "No doctors present in database."
+        //     })
+        // } 
         if(doctors.length > 0){
             return res.status(200).json({
                 success: true,
@@ -139,6 +144,7 @@ const getAllDoctors = async (req,res) => {
             })
         }
     } catch(error){
+        console.log("err",error.message)
         return res.status(500).json({
             success: false,
             message: error.message
@@ -209,11 +215,13 @@ const updateDoctor = async (req,res) => {
         message: "No request body found."
     })
 
+    
     try{
         const doctor_data = {doctor_name, email, phone ,gender ,age ,qualification ,degree ,institution ,yearOfCompletion ,experience ,sub_department , consultation_fee };
-
-        const updatedDoctor = await doctorModel.findByIdAndUpdate(id,{doctor_data},{nre: true});
-
+        
+        const updatedDoctor = await doctorModel.findByIdAndUpdate(id,doctor_data,{new: true});
+        
+        console.log("first",updateDoctor)
         if(updateDoctor) return res.status(200).json({
             messsage: "Doctor updated successfully.",
             updatedDoctor
@@ -222,6 +230,7 @@ const updateDoctor = async (req,res) => {
             message: "Failed to update."
         })
     } catch(error) {
+        console.log('err',error.message)
         return res.status(500).json({
             message: error.message
         });
@@ -234,8 +243,15 @@ const getDoctorByHospital = async (req,res) => {
         message:"Hospital Id not found."
     }) 
     try {
-        const doctors = await doctorModel.find({ hospital: id });
-        console.log(doctor)
+        const doctors = await doctorModel.find({ hospital: id })
+                        .populate("hospital","hospital_name")
+                        .populate({
+                            path: 'sub_department',
+                            populate: {
+                                path: 'department'
+                            }
+                        });
+        // console.log(doctor)
         return res.status(200).json({
             message: "Doctors found",
             doctors

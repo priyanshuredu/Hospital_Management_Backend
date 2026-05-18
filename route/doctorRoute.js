@@ -10,7 +10,7 @@ router.get('/:id', getDoctorById);
 router.get('/hospital/:id', getDoctorByHospital);
 
 router.patch('/update-status', updateDoctorStatus);
-router.put('/update', updateDoctor);
+router.put('/update/:id', updateDoctor);
 
 router.delete('/:id', deleteDoctor);
 

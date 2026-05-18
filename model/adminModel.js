@@ -32,34 +32,10 @@ const adminSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    password:{
-        type: String,
-        required: true
-    },
-    currentStatus:{
-        type: String,
-        enum: ['offline','online'],
-        default: 'offline'
-    },
-    user:{
-        type: mongoose.Types.ObjectId,
-        ref: 'user'
-    },
-    role:{
-        type: String,
-        enum: ['user','admin'],
-        default: 'user'
-    },
     accountStatus:{
         type: String,
         enum: ['active','inActive'],
         default:'active'
-    },
-    resetPassOtp:{
-        type: Number
-    },
-    otpExpireIn:{
-        type: Date
     }
 })
 

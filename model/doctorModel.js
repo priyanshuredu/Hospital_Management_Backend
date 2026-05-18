@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const hospital = require('./hospitalModel')
-const subDepartment = require('./subDepartmentModel')
+const sub_departments = require('./subDepartmentModel')
 
 const doctorSchema = new mongoose.Schema({
     doctor_name:{
@@ -57,7 +57,7 @@ const doctorSchema = new mongoose.Schema({
     sub_department:{
         type: mongoose.Types.ObjectId,
         required: true,
-        ref: 'subDepartment'
+        ref: 'sub_departments'
     },
     consultation_fee:{
         type: Number,

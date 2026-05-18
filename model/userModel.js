@@ -1,4 +1,8 @@
 const mongoose = require('mongoose');
+const admin = require('./adminModel');
+const doctor = require('./doctorModel');
+const hospital = require('./hospitalModel');
+// const patient = require()
 
 const userSchema = new mongoose.Schema({
     username:{
@@ -44,6 +48,18 @@ const userSchema = new mongoose.Schema({
     },
     otpExpireIn:{
         type: Date
+    },
+    admin:{
+        type: mongoose.Types.ObjectId,
+        ref: 'admin'
+    },
+    doctor:{
+        type: mongoose.Types.ObjectId,
+        ref: 'doctor'
+    },
+    hospital:{
+        type: mongoose.Types.ObjectId,
+        ref: 'hospital'
     }
 },{
         timestamps:true 

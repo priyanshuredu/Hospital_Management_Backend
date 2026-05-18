@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const cityLocation = require('./cityLocationModel')
 const districtLocation = require('./districtLocationModel')
 const stateLocation = require('./stateLocationModel')
-const user = require('./userModel') 
 
 const hospitalSchema = new mongoose.Schema({
     hospital_name:{
@@ -98,11 +97,7 @@ const hospitalSchema = new mongoose.Schema({
         type: String,
         maxLength: 500,
         required: true
-    },
-    user:{
-            type: mongoose.Types.ObjectId,
-            ref: 'user'
-    },
+    }
 });
 
 const hospitalModel = mongoose.model('hospital',hospitalSchema);

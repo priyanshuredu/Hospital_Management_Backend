@@ -6,12 +6,12 @@ const {login, verifyEmail, forgotPassword, resetPassword, getAllUsers, updateUse
 router.post('/login' ,login);
 router.post('/forgot-password', forgotPassword);
 router.post('/verify-mail', verifyEmail)
-router.patch('/reset-password',auth , resetPassword);
 router.get('/all-users',auth , getAllUsers);
 router.get('/get-user',auth ,getUser)
-router.patch('/update-profile-img', auth, updateProfile)
 router.get('/user-data',auth , getAllUserData);
-router.put('/profile-update',auth , updateUserInfo);
+router.patch('/reset-password',auth , resetPassword);
+router.patch('/update-profile-img', auth, updateProfile)
 router.patch('/account-status',auth , updateAccountStatus);
+router.put('/profile-update',auth , updateUserInfo);
 
 module.exports = router;
