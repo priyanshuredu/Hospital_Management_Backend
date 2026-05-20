@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const admin = require('./adminModel');
 const doctor = require('./doctorModel');
 const hospital = require('./hospitalModel');
-// const patient = require()
+const lab = require('./labModel')
 
 const userSchema = new mongoose.Schema({
     username:{
@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
     },
     role:{
         type: String,
-        enum: ['user','admin','doctor','hospital-admin','nurse','staff'],
+        enum: ['user','admin','doctor','hospital-admin','lab-assistant','staff'],
         default: 'user'
     },
     accountStatus:{
@@ -60,6 +60,10 @@ const userSchema = new mongoose.Schema({
     hospital:{
         type: mongoose.Types.ObjectId,
         ref: 'hospital'
+    },
+    lab:{
+        type: mongoose.Types.ObjectId,
+        ref: 'lab'
     }
 },{
         timestamps:true 

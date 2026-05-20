@@ -121,7 +121,12 @@ const getAllDoctors = async (req,res) => {
     try{
         console.log("first")
         const doctors = await doctorModel.find()
-        .populate("hospital")
+        .populate({
+            path: 'hospital',
+            populate: {
+                path: 'city'
+            }
+        })
         .populate({
             path: 'sub_department',
             populate: {
@@ -163,6 +168,7 @@ const getDoctorById = async (req,res) => {
     try{
         const doctor = await doctorModel.findById(id)
                         .populate("hospital","hospital_name")
+                        .populate("city","cityName")
                         .populate({
                             path: 'sub_department',
                             populate: {
@@ -245,6 +251,7 @@ const getDoctorByHospital = async (req,res) => {
     try {
         const doctors = await doctorModel.find({ hospital: id })
                         .populate("hospital","hospital_name")
+                        .populate("city","cityName")
                         .populate({
                             path: 'sub_department',
                             populate: {

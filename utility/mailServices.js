@@ -531,4 +531,34 @@ const sendHospitalRejectionEmail = async (email, hospital_name) => {
   return await transporter.sendMail(mail);
 };
 
-module.exports = {sendWelcomeEmail ,sendHospitalApprovalEmail ,sendHospitalRejectionEmail}
+const sendForgotPasswordMail = async (email, otp, userName) => {
+  const mail = {
+    from: '"Task Manager" <priyanshuredu12@gmail.com>',
+    to: email,
+    subject: 'Password Reset OTP - Task Manager',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px;">
+        <h2 style="color: #333;">Password Reset Request</h2>
+        
+        <p>Hello ${userName},</p>
+        
+        <p>We received a request to reset your password. Please use the following OTP to verify your identity:</p>
+        
+        <div style="background-color: #f4f4f4; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 3px; margin: 20px 0;">
+          ${otp}
+        </div>
+        
+        <p><strong>Note:</strong> This OTP is valid for 10 minutes.</p>
+        
+        <p>If you didn't request this, please ignore this email.</p>
+        
+        <hr>
+        <small>This is an automated message from Task Management System.</small>
+      </div>
+    `
+  };
+  
+  return await transporter.sendMail(mail);
+};
+
+module.exports = {sendWelcomeEmail ,sendHospitalApprovalEmail ,sendHospitalRejectionEmail , sendForgotPasswordMail}

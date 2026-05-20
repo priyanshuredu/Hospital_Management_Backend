@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const os = require('node:os')
 const secretKey = process.env.secretKey;
 const upload =  require('../utility/cloudinary')
-const {sendWelcomeEmail} = require('../utility/mailServices')
+const {sendWelcomeEmail ,sendForgotPasswordMail} = require('../utility/mailServices')
 const generateOTPWithExpiry = require('../utility/otpServices')
 
 
