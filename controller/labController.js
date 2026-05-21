@@ -7,7 +7,7 @@ const {sendWelcomeEmail} = require('../utility/mailServices')
 
 const createLab = async (req,res) => {
     const {labName ,labManager ,email ,age ,qualification } = req.body;
-    const hospitalId = req.user.hospital;
+    const hospitalId = '6a0375dae1ad0eaad0f5238a';
 
     if(!labName || !labManager || !email || !age || !qualification) return res.status(400).json({
         message:'Req body not found.'
@@ -16,7 +16,7 @@ const createLab = async (req,res) => {
     const session = await mongoose.startSession();
     try{
         session.startTransaction();
-        const lab_data = {labName ,labManager ,age ,qualification ,hospital: hospitalId};
+        const lab_data = {labName ,labManager ,email ,age ,qualification ,hospital: hospitalId};
         const lab = await labModel.create([lab_data],{session});
 
         const password = generatePasswordWithUUID();
@@ -53,9 +53,10 @@ const createLab = async (req,res) => {
 
 // Function to update lab data
 const updateLabData = async (req, res) => {
+    console.log("first")
     const { id } = req.params;
     const { labName, labManager, age, qualification } = req.body;
-    const hospitalId = req.user.hospital;
+    const hospitalId = '6a0375dae1ad0eaad0f5238a';
 
     if (!id) {
         return res.status(400).json({
@@ -121,7 +122,7 @@ const updateLabData = async (req, res) => {
 // Function to update lab status
 const updateLabStatus = async (req, res) => {
     const { id, status } = req.body;
-    const hospitalId = req.user.hospital;
+    const hospitalId = '6a0375dae1ad0eaad0f5238a';
 
     if (!id) {
         return res.status(400).json({
@@ -136,7 +137,7 @@ const updateLabStatus = async (req, res) => {
     }
 
     // Validate status value (assuming status can be 'active', 'inactive' etc.)
-    const validStatuses = ['active', 'inactive'];
+    const validStatuses = ['active', 'inActive'];
     if (!validStatuses.includes(status)) {
         return res.status(400).json({
             message: `Invalid status. Status must be one of: ${validStatuses.join(', ')}`
@@ -194,7 +195,7 @@ const updateLabStatus = async (req, res) => {
 // Additional function: Get lab details by ID
 const getLabById = async (req, res) => {
     const { id } = req.params;
-    const hospitalId = req.user.hospital;
+    const hospitalId = '6a0375dae1ad0eaad0f5238a';
 
     if (!id) {
         return res.status(400).json({
@@ -228,10 +229,10 @@ const getLabById = async (req, res) => {
 
 // Additional function: Get all labs for a hospital
 const getAllLabs = async (req, res) => {
-    const hospitalId = req.user.hospital;
+    const hospitalId = '6a0375dae1ad0eaad0f5238a';
 
     try {
-        const labs = await labModel.find({hospital: hospitalId})
+        const labs = await labModel.find({hospital: hospitalId}).populate('hospital','hospital_name')
 
         return res.status(200).json({
             message: 'Labs retrieved successfully.',

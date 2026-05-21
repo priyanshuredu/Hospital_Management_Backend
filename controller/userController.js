@@ -9,43 +9,39 @@ const generateOTPWithExpiry = require('../utility/otpServices')
 
 
 
-// const signUp = async (req,res) => {
-//     const role = req.user.role;
-//     if(role !== "admin") return res.status(400).json({
-//         message:"Not authorized"
-//     })
-//     const {username ,email ,password} = req.body;
-//     if(!username || !email || !password) return res.status(400).json({
-//         message:"Request body not found."
-//     });
-//     try{
-//         const oldUser = await userModel.find({email});
-//         console.log("Old user:",oldUser.length)
-//         if(oldUser.length !== 0) return res.status(400).json({
-//             message:`User with ${email} already exists.`
-//         })
+const signUp = async (req,res) => {
+    const {username ,email ,password} = req.body;
+    if(!username || !email || !password) return res.status(400).json({
+        message:"Request body not found."
+    });
+    try{
+        const oldUser = await userModel.find({email});
+        console.log("Old user:",oldUser.length)
+        if(oldUser.length !== 0) return res.status(400).json({
+            message:`User with ${email} already exists.`
+        })
 
-//         const oldUsername = await userModel.find({username});
-//         if(oldUsername.length !== 0) return res.status(400).json({
-//             message:`${username} is not available.`
-//         })
+        const oldUsername = await userModel.find({username});
+        if(oldUsername.length !== 0) return res.status(400).json({
+            message:`${username} is not available.`
+        })
 
-//         const salt = bcrypt.genSaltSync(10);
-//         const hash = bcrypt.hashSync(password ,salt);
-//         const newUser = {username, email, password:hash};
-//         const result = await userModel.create(newUser);
+        const salt = bcrypt.genSaltSync(10);
+        const hash = bcrypt.hashSync(password ,salt);
+        const newUser = {username, email, password:hash };
+        const result = await userModel.create(newUser);
         
-//         sendWelcomeEmail(email , username, password)
-//         return res.status(201).json({
-//             message:"New user added to database successfully.",
-//             result
-//         });
-//     } catch(error){
-//         return res.status(400).json({
-//             message:error
-//         });
-//     }
-// }
+        sendWelcomeEmail(email , username, password)
+        return res.status(201).json({
+            message:"New user added to database successfully.",
+            result
+        });
+    } catch(error){
+        return res.status(400).json({
+            message:error
+        });
+    }
+}
 
 const login = async (req,res) => {
     const {email ,password} = req.body;

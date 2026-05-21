@@ -6,7 +6,7 @@ const { createLab, updateLabData, updateLabStatus, getLabById, getAllLabs} = req
 router.post('/create', createLab);
 
 router.put('/update/:id', updateLabData);
-router.patch('/update-status', updateLabStatus);
+router.patch('/status', updateLabStatus);
 
 router.get('/all', getAllLabs);
 router.get('/:id', getLabById);
