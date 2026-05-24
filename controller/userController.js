@@ -78,7 +78,7 @@ const login = async (req,res) => {
                 await user.save();
                 return res.status(200).json({
                     message:`${username} login success.`,
-                    id,username,role,token,email,host , machine
+                    id,username,role,token,email,host , machine,user
                 });
             }else {
                 return res.status(400).json({

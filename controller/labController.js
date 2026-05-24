@@ -165,20 +165,20 @@ const updateLabStatus = async (req, res) => {
         );
 
         // Optional: Also update the associated user's status if needed
-        if (updatedLab) {
-            // If you want to deactivate the user when lab is inactive/suspended
-            if (status === 'inactive' || status === 'suspended') {
-                await userModel.findOneAndUpdate(
-                    { lab: id, role: "lab-assistant" },
-                    { isActive: false } // Assuming you have an isActive field in user model
-                );
-            } else if (status === 'active') {
-                await userModel.findOneAndUpdate(
-                    { lab: id, role: "lab-assistant" },
-                    { isActive: true }
-                );
-            }
-        }
+        // if (updatedLab) {
+        //     // If you want to deactivate the user when lab is inactive/suspended
+        //     if (status === 'inactive' || status === 'suspended') {
+        //         await userModel.findOneAndUpdate(
+        //             { lab: id, role: "lab-assistant" },
+        //             { isActive: false } // Assuming you have an isActive field in user model
+        //         );
+        //     } else if (status === 'active') {
+        //         await userModel.findOneAndUpdate(
+        //             { lab: id, role: "lab-assistant" },
+        //             { isActive: true }
+        //         );
+        //     }
+        // }
 
         return res.status(200).json({
             message: `Lab status updated to '${status}' successfully.`,
