@@ -14,6 +14,7 @@ const hospitalImageRoute = require('./route/hospitalImageRoute');
 const doctorImageRoute = require('./route/doctorImageRoute');
 const doctorRoute = require('./route/doctorRoute');
 const labRoute = require('./route/labRoute');
+const appointmentRoute = require('./route/appointmentRoute');
 const fileUpload = require('express-fileupload');
 
 const DB_URL = process.env.DB_URL;
@@ -36,9 +37,10 @@ app.use('/hospital', hospitalRoute);
 app.use('/department', departmentRoute);
 app.use('/sub-department', subDepartmentRoute);
 app.use('/hospital-img', hospitalImageRoute);
-app.use('/doctor-img', doctorImageRoute);
 app.use('/doctor', doctorRoute);
+app.use('/doctor-img', doctorImageRoute);
 app.use('/lab', labRoute);
+app.use('/appointment', appointmentRoute);
 
 app.listen(process.env.PORT ,() => {
     console.log(`Server is running on ${process.env.PORT}.`)

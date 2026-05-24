@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const user = require('./userModel');
-const hospital = require('./hospitalModel');
-const doctor = require('./doctorModel');
+// const user = require('./userModel');
+// const hospital = require('./hospitalModel');
+// const doctor = require('./doctorModel');
 
 const appointmentSchema = new mongoose.Schema({
     user:{
@@ -26,7 +26,31 @@ const appointmentSchema = new mongoose.Schema({
     appointmentAttended: {
         type: Boolean,
         default: false
+    },
+    timeSlot:{
+        type:String
+    },
+    patientName:{
+        type: String
+    },
+    patientPhone:{
+        type: Number
+    },
+    patientGender:{
+        type: String,
+        enum: ['male','female','other']
+    },
+    patientAge:{
+        type: Number
+    },
+    bookingDate:{
+        type: Date
+    },
+    fee:{
+        type: Number,
+        required: true
     }
+
 })
 
 const appointmentModel = mongoose.model('appointment', appointmentSchema);

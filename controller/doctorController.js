@@ -119,7 +119,7 @@ const createDoctor = async (req,res) => {
 
 const getAllDoctors = async (req,res) => {
     try{
-        console.log("first")
+        // console.log("first")
         const doctors = await doctorModel.find()
         .populate({
             path: 'hospital',
@@ -133,7 +133,7 @@ const getAllDoctors = async (req,res) => {
                 path: 'department'
             }
         });
-        console.log(":",doctors)
+        // console.log(":",doctors)
 
         // if(doctors.length === 0){
         //     return res.status(200).json({
@@ -164,6 +164,7 @@ const getDoctorById = async (req,res) => {
         success: false,
         message: "Id is required."
     })
+    console.log("first")
 
     try{
         const doctor = await doctorModel.findById(id)
@@ -251,7 +252,6 @@ const getDoctorByHospital = async (req,res) => {
     try {
         const doctors = await doctorModel.find({ hospital: id })
                         .populate("hospital","hospital_name")
-                        .populate("city","cityName")
                         .populate({
                             path: 'sub_department',
                             populate: {

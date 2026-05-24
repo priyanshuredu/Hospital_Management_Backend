@@ -246,5 +246,22 @@ const getAllLabs = async (req, res) => {
     }
 }
 
+const getLabsByHospital = async (req,res) => {
+    const {id} = req.params;
+
+    try{
+        const labs = await labModel.find({hospital: id});
+
+        return res.status(200).json({
+            message:"All labs by hospital",
+            labs
+        })
+    } catch(error) {
+        return res.status(500).json({
+            message: error.message
+        })
+    }
+}
+
 // Export all functions
-module.exports = { createLab, updateLabData, updateLabStatus, getLabById, getAllLabs}
+module.exports = { createLab, updateLabData, updateLabStatus, getLabById, getAllLabs ,getLabsByHospital}

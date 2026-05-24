@@ -17,6 +17,6 @@ const stateLocationSchema = new mongoose.Schema({
     }
 })
 
-const stateLocationModel = mongoose.model('stateLocation',stateLocationSchema);
+const stateLocationModel = mongoose.model.statelocation || mongoose.model('stateLocation',stateLocationSchema);
 
 module.exports = stateLocationModel;

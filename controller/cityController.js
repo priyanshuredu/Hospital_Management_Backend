@@ -80,18 +80,20 @@ const deleteCity = async (req,res) => {
 const getCityById = async (req, res) => {
     const { id } = req.params;
     try {
-        const city = await cityLocationModel.findById(id)
+        const cities = await cityLocationModel.find({district: id})
         .populate({path: 'district',
             populate:{
                 path:'state'
             }
     });
-        if (!city) {
+
+    console.log("cityt:",cities)
+        if (!cities) {
             return res.status(404).json({ message: "City not found" });
         }
         return res.status(200).json({
             message: "City found",
-            city
+            cities
         });
     } catch (error) {
         return res.status(500).json({

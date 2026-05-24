@@ -6,8 +6,8 @@ const {createDoctor ,getAllDoctors ,getDoctorById ,updateDoctorStatus ,updateDoc
 router.post('/create', createDoctor);
 
 router.get('/all', getAllDoctors);
-router.get('/:id', getDoctorById);
 router.get('/hospital/:id', getDoctorByHospital);
+router.get('/:id', getDoctorById);
 
 router.patch('/update-status', updateDoctorStatus);
 router.put('/update/:id', updateDoctor);

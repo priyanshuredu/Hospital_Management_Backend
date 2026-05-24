@@ -1,17 +1,18 @@
 const appointmentModel = require('../modeL/appointmentModel')
 
 const createAppointment = async (req,res) => {
-    const {hospital ,doctor , appointmentDate} = req.body;
-    const userId = req.user._id;
+    const {hospital ,doctor , appointmentDate ,timeSlot ,patientName ,patientPhone ,patientAge ,patientGender ,fee ,bookingDate} = req.body;
+    const userId = '6a01e1565a83dda2f97d1c6c';
 
-    if(!hospital || !doctor || !appointmentDate) return res.status(400).json({
+    if(!hospital || !doctor || !appointmentDate || !timeSlot || !patientName || !patientPhone || !patientAge || !patientGender || !fee || !bookingDate) return res.status(400).json({
         message:'Req body not found.'
     })
 
     try{
-        const appointment_data = {user: userId, hospital, doctor, appointmentDate};
+        const appointment_data = {user: userId, hospital, doctor, appointmentDate ,timeSlot ,patientName ,patientPhone ,patientAge ,patientGender ,fee ,bookingDate};
         const appointment = await appointmentModel.create(appointment_data);
 
+        console.log("Appointment:",appointment)
         return res.status(200).json({
             message:"Appointment scheduled.",
             appointment
@@ -24,8 +25,8 @@ const createAppointment = async (req,res) => {
 }
 
 const getAllAppointmentsByHospital = async (req,res) => {
-    const role = req.user.role;
-    const hospitalId = req.user.hospital
+    const role = 'hospital-admin';
+    const hospitalId = '6a0375dae1ad0eaad0f5238a'
     if(role === 'hospital-admin'){
         try{
             const appointments = await appointmentModel.find({hospital: hospitalId})
@@ -52,8 +53,8 @@ const getAllAppointmentsByHospital = async (req,res) => {
 }
 
 const getAllAppointmentsByDoctors = async (req,res) => {
-    const role = req.user.role;
-    const doctorId = req.user.doctor
+    const role = 'doctor';
+    const doctorId = '6a06ae7d5b5c5ce49d1553af'
     if(role === 'doctor'){
         try{
             const appointments = await appointmentModel.find({doctor: doctorId})

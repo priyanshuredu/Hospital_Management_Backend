@@ -1,11 +1,8 @@
 const mongoose = require('mongoose');
 
-const adminSchema = new mongoose.Schema({
-    username:{
+const patientSchema = new mongoose.Schema({
+    name:{
         type: String,
-        unique: [true, "Username not available."],
-        minLength: 4,
-        maxLength: 16,
         required: true
     },
     email:{
@@ -30,14 +27,12 @@ const adminSchema = new mongoose.Schema({
     gender:{
         type: String,
         required: true
-    },
-    accountStatus:{
-        type: String,
-        enum: ['active','inActive'],
-        default:'active'
     }
-})
+});
 
-const adminModel = mongoose.models.admin || mongoose.model('admin',adminSchema);
+const patientModel = mongoose.model('patient', patientSchema);
 
-module.exports = adminModel;
+module.exports = patientModel;
+
+
+// 

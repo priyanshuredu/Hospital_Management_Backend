@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const districtLocation = require('./districtLocationModel')
-const stateLocation = require('./stateLocationModel')
+// const districtLocation = require('./districtLocationModel')
+// const stateLocation = require('./stateLocationModel')
 
 const cityLocationSchema = new mongoose.Schema({
     cityName:{

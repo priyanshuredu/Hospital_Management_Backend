@@ -371,6 +371,7 @@ const getAllHospitals = async (req,res) => {
                 message: "No hospitals present in database."
             })
         } 
+        // console.log("first,",hospitals);
         if(hospitals.length > 0){
             return res.status(200).json({
                 success: true,
