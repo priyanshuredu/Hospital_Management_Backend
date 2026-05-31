@@ -7,13 +7,13 @@ module.exports = async (req, res, next) => {
     if(!authorizationHeader) return res.status(400).json({
         message:"Authorization header not found."
     });
-
+    
     const token = authorizationHeader.split(' ')[1];
     // console.log("Token :",token);
     if(!token) return res.status(400).json({
         message:"Token not found in header."
     });
-
+    
     try{
         const user = await jwt.verify(token ,secretKey);
         const userDetails = user._doc;
@@ -25,6 +25,7 @@ module.exports = async (req, res, next) => {
             });
         } 
         else{
+            // console.log("first 17",userDetails);
             req.user = userDetails;
             next()
         }

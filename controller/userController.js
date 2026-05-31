@@ -45,7 +45,8 @@ const signUp = async (req,res) => {
 
 const login = async (req,res) => {
     const {email ,password} = req.body;
-    if(!email || !password) return res.statsu(400).json({
+    console.log("first:",req.body)
+    if(!email || !password) return res.status(400).json({
         message:"Request body not found."
     });
     
@@ -74,11 +75,14 @@ const login = async (req,res) => {
         if(user.accountStatus === "active"){
             if(match){
                 const token = await jwt.sign(oldUser ,secretKey);
+                // res.cookie('token',token);
                 user.currentStatus="online";
                 await user.save();
+                const userData = {id: user._id ,username :user.username ,email: user.email ,role: user.role};
                 return res.status(200).json({
-                    message:`${username} login success.`,
-                    id,username,role,token,email,host , machine,user
+                    message:`logged in successfully.`,
+                    token,
+                    userData
                 });
             }else {
                 return res.status(400).json({
@@ -91,8 +95,8 @@ const login = async (req,res) => {
             })
         }
     } catch(error){
-        return res.status(400).json({
-            message:error
+        return res.status(500).json({
+            message:error.message
         })
     }
 }
@@ -210,8 +214,12 @@ const getAllUsers = async (req,res) => {
     const id = req.user._id;
     // console.log("Id :",id)
     try{
-        const result = await userModel.find({$and:[{_id:{$ne: id}},{role:{$eq:"user"}}]})
-        // console.log("res:",result)
+        const users = await userModel.find({$and:[{_id:{$ne: id}},{role:{$eq:"user"}}]})
+        const result = users.map(({ username, email, accountStatus }) => ({
+                                  username,
+                                  email,
+                                  accountStatus
+                                }));
         return res.status(200).json({
             message:"All user present in db except you.",
             result
@@ -239,7 +247,7 @@ const updateUserInfo = async (req,res) => {
                 },{new: true})
 
         return res.status(200).json({
-            message:`${username} updated.`,
+            message:`User updated successfully`,
             result
         });
     } catch(error){
@@ -310,8 +318,66 @@ const getAllUserData = async (req,res) => {
 }
 const getUser = async (req,res) =>{
     const id = req.user._id;
+    const role = req.user.role
     
-    try{
+    if(role === 'admin'){
+        try{
+        const response = await  userModel.findById(id).populate('admin');
+
+        return res.status(200).json({
+            message:"User fetched successfully.",
+            response
+        })
+
+    } catch(error){
+        return res.status(400).json({
+            message: error.message
+        })
+    }
+    } else if (role === 'hospital-admin') {
+        try{
+        const response = await  userModel.findById(id).populate('hospital');
+
+        return res.status(200).json({
+            message:"User fetched successfully.",
+            response
+        })
+
+    } catch(error){
+        return res.status(400).json({
+            message: error.message
+        })
+    }
+    } else if(role === 'doctor') {
+        try{
+        const response = await  userModel.findById(id).populate('doctor');
+
+        return res.status(200).json({
+            message:"User fetched successfully.",
+            response
+        })
+
+    } catch(error){
+        return res.status(400).json({
+            message: error.message
+        })
+    }
+    } else if(role === 'lab-assistant') {
+        try{
+        const response = await  userModel.findById(id).populate('lab');
+
+        return res.status(200).json({
+            message:"User fetched successfully.",
+            response
+        })
+
+    } catch(error){
+        return res.status(400).json({
+            message: error.message
+        })
+    }
+    } else {
+        try{
         const response = await  userModel.findById(id);
 
         return res.status(200).json({
@@ -324,6 +390,8 @@ const getUser = async (req,res) =>{
             message: error.message
         })
     }
+    }
+    
 }
 
 const updateProfile = async (req,res) => {
@@ -346,12 +414,13 @@ const updateProfile = async (req,res) => {
 
         // console.log("Img url:",imgUrl)
 
-        await userModel.findByIdAndUpdate(id,{
-            profileImage: imgUrl
-        },{new :true})
+        const user = await userModel.findById(id);
+        user.profile_image = imgUrl;
+        await user.save();
 
         return res.status(200).json({
-            message:"Profile image updated successfully."
+            message:"Profile image updated successfully.",
+            user
         })
     } catch(error){
         return res.status(400).json({

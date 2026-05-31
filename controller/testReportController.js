@@ -1,4 +1,5 @@
 const testReportModel = require('../model/testReport')
+const mongoose = require('mongoose')
 
 const getPendingReports = async (req,res) => {
     try{
@@ -108,4 +109,41 @@ const updateReportStatus = async (req,res) => {
     }
 }
 
-module.exports = {getPendingReports ,getInprocessReports ,getCompletedReports ,getAllReports ,updateReportStatus}
+const getUserTestReportHistory = async (req,res) => {
+    const UserId = req.user._id;
+
+    if(!UserId) return res.status(400).json({
+        message:"User id not found."
+    })
+
+    try{
+        console.log("first",UserId)
+        const testReports = await testReportModel.aggregate([
+  {
+    $lookup: {
+      from: 'appointments',
+      localField: 'appointment',
+      foreignField: '_id',
+      as: 'appointment'
+    }
+  },
+  { $unwind: '$appointment' },
+  { 
+    $match: { 
+      'appointment.user': new mongoose.Types.ObjectId(UserId) 
+    } 
+  }
+]);
+
+        return res.status(200).json({
+            message:"All test reports.",
+            testReports
+        })
+    } catch(error){
+        return res.status(500).json({
+            message: error.message
+        })
+    }
+}
+
+module.exports = {getPendingReports ,getInprocessReports ,getCompletedReports ,getAllReports ,updateReportStatus ,getUserTestReportHistory}

@@ -8,8 +8,8 @@ router.post('/create', createLab);
 router.put('/update/:id', updateLabData);
 router.patch('/status', updateLabStatus);
 
+router.get('/all',auth , getAllLabs);
 router.get('/hospital/:id', getLabsByHospital);
-router.get('/all', getAllLabs);
 router.get('/:id', getLabById);
 
 module.exports = router

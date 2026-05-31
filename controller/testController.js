@@ -1,19 +1,32 @@
 const testModel = require('../model/testModel');
+const labModel = require('../model/labModel')
 
 const createTest = async (req,res) => {
-    const {testName ,lab ,hospital ,fee ,precautions} = req.body;
-    if(!testName || !lab || !hospital || !fee || !precautions) return res.status(400).json({
+    const {testName ,fee ,precautions} = req.body;
+    const labId = req.user.lab;
+    if(!testName || !fee || !precautions) return res.status(400).json({
         message:'Request body not found.'
     })
 
     try{
-        const test_data ={testName ,lab ,hospital ,fee ,precautions}
-        const test = await testModel.create(test_data);
+        const lab = await labModel.findById(labId);
 
-        return res.status(201).json({
-            message:'Test added in lab',
-            testModel
-        })
+        if(lab){
+
+            const test_data ={testName ,lab: labId ,hospital: lab.hospital ,fee ,precautions}
+            // console.log("Test data:", test_data);
+            // return 
+            const test = await testModel.create(test_data);
+
+            return res.status(201).json({
+                message:'Test added in lab',
+                testModel
+            })
+        } else{
+            return res.status(404).json({
+                message:"Failed to find lab"
+            })
+        }
     } catch(error){
         return res.status(500).json({
             message: error.message
@@ -133,6 +146,26 @@ const getAlltests = async (req,res) =>{
     }
 }
 
+const getAllTestsByLab = async (req,res) => {
+    const {labId} = req.params;
+
+    if(!labId) return res.status(400).json({
+        message:"Lab in not found."
+    })
+    try{
+        const tests = await testModel.find({lab: labId});
+
+        return res.status(200).json({
+            message:"All test by this lab.",
+            tests
+        })
+    } catch(error){
+        return res.status(500).json({
+            message: error.message
+        })
+    }
+}
+
 const getTest = async (req,res) => {
     const {id} = req.params;
     if(!id) return res.status(400).json({
@@ -175,4 +208,5 @@ const getRecentTest = async(req,res) => {
   }
 }
 
-module.exports = {createTest ,updateTestStatus ,getAlltests ,getTest ,getRecentTest ,getAllActivetests};
+
+module.exports = {createTest ,updateTestStatus ,getAlltests ,getTest ,getRecentTest ,getAllActivetests ,getAllTestsByLab};

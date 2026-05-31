@@ -72,13 +72,16 @@ const updateDepartmentStatus = async (req,res) => {
     }
     try{
         const updatedDepartment = await departmentModel.findByIdAndUpdate(id,{status: status},{new: true});
-        console.log(updatedDepartment)
+        
+        if(updatedDepartment){
+            console.log(updatedDepartment)
 
-        if(updatedDepartment) return res.status(200).json({
+        return res.status(200).json({
             success: true,
-            message:`${result.departmentName} status changed to ${status} successfully.`,
+            message:`Status changed to ${status} successfully.`,
             updatedDepartment
         })
+    }
     } catch(error){
         return res.status(500).json({
             success: false,

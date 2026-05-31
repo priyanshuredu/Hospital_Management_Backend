@@ -3,8 +3,9 @@ const testReportModel = require('../model/testReport');
 const mongoose = require('mongoose');
 
 const createPrescription = async (req,res) => {
-    const {appointment ,doctor , medicines, precautions, test, follow_up} = req.body
-    if(!appointment  || !doctor || !medicines || !precautions || !follow_up) return res.status(400).json({
+    const doctorId = req.user.doctor;
+    const {appointment , medicines, precautions, test, follow_up} = req.body
+    if(!appointment || !medicines || !precautions || !follow_up) return res.status(400).json({
         message:'Req. body not found.'
     })
 
@@ -26,7 +27,7 @@ const createPrescription = async (req,res) => {
         const testreport = await testReportModel.create([test_data],{session});
         const testreportId = testreport[0]._id;
         
-        const prescription_data = {appointment ,doctor , medicines: medicinesString, precautions, test, testResport: testreportId, follow_up};
+        const prescription_data = {appointment ,doctor :doctorId , medicines: medicinesString, precautions, test, testResport: testreportId, follow_up};
         console.log("prescription_data:",prescription_data)
         const prescription = await prescriptionModel.create([prescription_data],{session});
 
@@ -50,7 +51,7 @@ const createPrescription = async (req,res) => {
 }
 
 const getAllprescriptionsByDoctor = async (req,res) => {
-    const {id} = req.params;
+    const id = req.user.doctor;
     if(!id) return res.status(400).json({
         message:'Req. body not found.'
     })
@@ -58,7 +59,19 @@ const getAllprescriptionsByDoctor = async (req,res) => {
     try{
         const prescriptions = await prescriptionModel.find({doctor: id})
                                     .populate('appointment')
-                                    .populate('test')
+                                    .populate({
+                                        path:'test',
+                                        populate:{
+                                            path:'lab'
+                                        }
+                                    })
+                                    .populate({
+                                        path:'doctor',
+                                        populate:{
+                                            path:'hospital'
+                                        }
+                                    })
+                                    .populate('testResport')
         
         return res.status(200).json({
             message:'All prescriptions assigned by dcotor',

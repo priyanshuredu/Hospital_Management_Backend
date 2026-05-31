@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser')
 const app = express();
 require('dotenv').config();
 const uploadFile = require('express-fileupload');
@@ -30,6 +31,7 @@ mongoose.connect(process.env.DB_URL)
 app.use(cors({
     origin:"*"
 }))
+app.use(cookieParser());
 app.use(express.urlencoded());
 app.use(fileUpload());
 app.use(express.json());

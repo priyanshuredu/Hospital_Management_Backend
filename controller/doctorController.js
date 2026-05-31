@@ -90,6 +90,10 @@ const createDoctor = async (req,res) => {
                         const uploadedImages = await Promise.allSettled(uploadPromises);
                         // console.log(`>>>>>>>>>>>>>>>>>84>>`,uploadedImages);
                         await session.commitTransaction();
+                        return res.status(201).json({
+                            message:"Doctor added sucessfylly.",
+                            success: true
+                        })
                     } catch (error) {
                         // console.log(">>>>>>>>>>>>>>>>86error :",error.message)
                         return res.status(400).json({
@@ -168,8 +172,12 @@ const getDoctorById = async (req,res) => {
 
     try{
         const doctor = await doctorModel.findById(id)
-                        .populate("hospital","hospital_name")
-                        .populate("city","cityName")
+                        .populate({
+                            path:'hospital',
+                            populate:{
+                                path:'city',
+                            }
+                        })
                         .populate({
                             path: 'sub_department',
                             populate: {
@@ -196,6 +204,7 @@ const getDoctorById = async (req,res) => {
 
 const updateDoctorStatus = async (req,res) => {
     const {id ,status} = req.body;
+    console.log("Req. body:",req.body)
     if(!status) return res.status(400).json({
         message:"Req body not found."
     })

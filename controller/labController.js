@@ -229,15 +229,25 @@ const getLabById = async (req, res) => {
 
 // Additional function: Get all labs for a hospital
 const getAllLabs = async (req, res) => {
+    console.log("first")
+    const userRole = req.user.role;
     const hospitalId = '6a0375dae1ad0eaad0f5238a';
-
     try {
-        const labs = await labModel.find({hospital: hospitalId}).populate('hospital','hospital_name')
+        if(userRole === "admin"){
+            const labs = await labModel.find().populate('hospital','hospital_name');
+            
+            return res.status(200).json({
+                message:"All labs",
+                labs
+            })
+        } else if(userRole === 'hospital-admin'){
+            const labs = await labModel.find({hospital: hospitalId}).populate('hospital','hospital_name')
 
-        return res.status(200).json({
-            message: 'Labs retrieved successfully.',
-            labs
-        });
+            return res.status(200).json({
+                message: 'Labs retrieved successfully.',
+                labs
+            });
+        }
 
     } catch (error) {
         return res.status(500).json({
@@ -250,7 +260,7 @@ const getLabsByHospital = async (req,res) => {
     const {id} = req.params;
 
     try{
-        const labs = await labModel.find({hospital: id});
+        const labs = await labModel.find({hospital: id}).populate('hospital','hospital_name');
 
         return res.status(200).json({
             message:"All labs by hospital",
