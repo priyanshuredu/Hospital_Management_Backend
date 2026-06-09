@@ -1,4 +1,4 @@
-const appointmentModel = require('../modeL/appointmentModel')
+const appointmentModel = require('../model/appointmentModel')
 const mongoose = require('mongoose');
 const doctorModel = require('../model/doctorModel');
 const userModel = require('../model/userModel');
