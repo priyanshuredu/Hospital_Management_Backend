@@ -4,11 +4,12 @@ const secretKey = process.env.secretKey;
 
 module.exports = async (req, res, next) => {
     const authorizationHeader = req.headers.authorization;
-    if(!authorizationHeader) return res.status(400).json({
+    const CookieToken = req.cookies.token;
+    if(!authorizationHeader && !CookieToken) return res.status(400).json({
         message:"Authorization header not found."
     });
     
-    const token = authorizationHeader.split(' ')[1];
+    const token = authorizationHeader?.split(' ')[1] || CookieToken;
     // console.log("Token :",token);
     if(!token) return res.status(400).json({
         message:"Token not found in header."

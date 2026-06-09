@@ -7,6 +7,7 @@ router.post('/login' ,login);
 router.post('/forgot-password', forgotPassword);
 router.post('/verify-mail', verifyEmail)
 router.get('/all-users',auth , getAllUsers);
+router.get('/getMe',auth ,getUser)
 router.get('/get-user',auth ,getUser)
 router.get('/user-data',auth , getAllUserData);
 router.patch('/reset-password',auth , resetPassword);

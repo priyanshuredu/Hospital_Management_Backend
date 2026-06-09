@@ -75,7 +75,7 @@ const login = async (req,res) => {
         if(user.accountStatus === "active"){
             if(match){
                 const token = await jwt.sign(oldUser ,secretKey);
-                // res.cookie('token',token);
+                res.cookie('token',token);
                 user.currentStatus="online";
                 await user.save();
                 const userData = {id: user._id ,username :user.username ,email: user.email ,role: user.role};

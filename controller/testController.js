@@ -36,7 +36,12 @@ const createTest = async (req,res) => {
 
 const updateTestStatus = async (req,res) => {
     const { id, status } = req.body;
-    const labId = '6a0e1a13db952fa2ab1db808';
+    const labId = req.user.lab;
+    const role = req.user.role;
+
+    if(role !== "lab-assistant") return res.status(404).json({
+        message:"Not authorised"
+    })
 
     if (!id) {
         return res.status(400).json({
