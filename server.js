@@ -29,7 +29,7 @@ mongoose.connect(process.env.DB_URL)
 .catch((error) => console.log("Error :",error))
 
 app.use(cors({
-    origin:"http://localhost:5173",
+    origin:"https://hospital-management-frontend-zwv7.onrender.com/",
     credentials: true,
 }))
 app.use(cookieParser());
